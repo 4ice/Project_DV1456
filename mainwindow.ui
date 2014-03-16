@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>590</width>
+    <height>439</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;test&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="currentIndex">
+       <number>3</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Add contestant</string>
+       </attribute>
+       <widget class="QLabel" name="LYear">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>310</y>
+          <width>121</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Current year: </string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_mail">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>37</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LMail">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>37</y>
+          <width>24</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Mail</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LSSN">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>93</y>
+          <width>58</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SSN</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_name">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>9</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LStartingNr">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>121</y>
+          <width>102</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Starting number</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LName">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>9</y>
+          <width>36</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LGender">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>65</y>
+          <width>46</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Gender</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_gender">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>65</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="BnAddCompetitor">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>149</y>
+          <width>105</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Add contestant</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_startingNr">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>120</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_SSN">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>93</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LActiveContest">
+        <property name="geometry">
+         <rect>
+          <x>430</x>
+          <y>9</y>
+          <width>231</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Active Contest:</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Add Staff</string>
+       </attribute>
+       <widget class="QLabel" name="LActiveContest_S">
+        <property name="geometry">
+         <rect>
+          <x>430</x>
+          <y>9</y>
+          <width>231</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Active Contest:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LTask_S">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>65</y>
+          <width>27</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Task</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LMail_S">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>37</y>
+          <width>24</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Mail</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LName_S">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>9</y>
+          <width>36</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_task_S">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>65</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_mail_S">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>37</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_phoneNr_S">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>121</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_name_S">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>9</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="BnAddStaff">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>170</y>
+          <width>80</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Add staff</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LPhoneNr_S">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>121</y>
+          <width>92</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Phone number</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LSSN_S">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>93</y>
+          <width>31</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>SSN</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_SSN_S">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>93</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Add track</string>
+       </attribute>
+       <widget class="QLabel" name="LTrackName">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>9</y>
+          <width>72</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Track Name</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LDistance">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>37</y>
+          <width>55</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Distance</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LLocation">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>65</y>
+          <width>53</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Location</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LDescription">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>93</y>
+          <width>71</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Description</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_TrackName">
+        <property name="geometry">
+         <rect>
+          <x>87</x>
+          <y>9</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_Distance">
+        <property name="geometry">
+         <rect>
+          <x>87</x>
+          <y>37</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_Location">
+        <property name="geometry">
+         <rect>
+          <x>87</x>
+          <y>65</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPlainTextEdit" name="PTE_Description">
+        <property name="geometry">
+         <rect>
+          <x>87</x>
+          <y>93</y>
+          <width>256</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>300</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+       <widget class="QTextBrowser" name="textBrowser">
+        <property name="geometry">
+         <rect>
+          <x>350</x>
+          <y>93</y>
+          <width>211</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="geometry">
+         <rect>
+          <x>460</x>
+          <y>300</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Show tracks</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Add result</string>
+       </attribute>
+       <widget class="QPushButton" name="BnAddResult">
+        <property name="geometry">
+         <rect>
+          <x>460</x>
+          <y>100</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Add</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>341</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Choose the person that you want to add an result to:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="LE_timeResult">
+        <property name="geometry">
+         <rect>
+          <x>440</x>
+          <y>70</y>
+          <width>113</width>
+          <height>22</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="LTimeResult">
+        <property name="geometry">
+         <rect>
+          <x>295</x>
+          <y>72</y>
+          <width>141</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Time result (seconds):</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="BnShowPeople">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>240</y>
+          <width>91</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>print people</string>
+        </property>
+       </widget>
+       <widget class="QListWidget" name="LW_people">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>30</y>
+          <width>91</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>590</width>
+     <height>19</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="action">
+   <property name="text">
+    <string>New event</string>
+   </property>
+  </action>
+  <action name="actionNew_event">
+   <property name="text">
+    <string>New event</string>
+   </property>
+  </action>
+  <action name="actionAdd_new_Contest">
+   <property name="text">
+    <string>Add new Contest</string>
+   </property>
+  </action>
+  <action name="actionStart_new_event">
+   <property name="text">
+    <string>Start new event</string>
+   </property>
+  </action>
+  <action name="actionWawa">
+   <property name="text">
+    <string>wawa</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogProgramStart</class>
+ <widget class="QDialog" name="DialogProgramStart">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>423</width>
+    <height>287</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Choose contest</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="LInfo">
+     <property name="text">
+      <string>Please choose to open an existing Contest, or create a new one</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="LW_openList"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="BnLoad">
+     <property name="text">
+      <string>Load</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="BnNew">
+     <property name="text">
+      <string>New</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="BnCancel">
+     <property name="text">
+      <string>Canel</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

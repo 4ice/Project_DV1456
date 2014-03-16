@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DialogDeletePerson</class>
+ <widget class="QDialog" name="DialogDeletePerson">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>546</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Remove person</string>
+  </property>
+  <widget class="QPushButton" name="BnCancel">
+   <property name="geometry">
+    <rect>
+     <x>143</x>
+     <y>269</y>
+     <width>261</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Canel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LInfo">
+   <property name="geometry">
+    <rect>
+     <x>67</x>
+     <y>0</y>
+     <width>411</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Chose the person that you want to delete, and press the button</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LCompetitor">
+   <property name="geometry">
+    <rect>
+     <x>83</x>
+     <y>23</y>
+     <width>90</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>COMPETITOR</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="LStaff">
+   <property name="geometry">
+    <rect>
+     <x>398</x>
+     <y>23</y>
+     <width>40</width>
+     <height>14</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>STAFF</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>40</y>
+     <width>258</width>
+     <height>222</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QListWidget" name="LW_Competitor"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="BnDelComp">
+      <property name="text">
+       <string>Delete Competitor</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>40</y>
+     <width>258</width>
+     <height>222</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QListWidget" name="LW_Staff"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="BnDelStaff">
+      <property name="text">
+       <string>Delete Staff</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
