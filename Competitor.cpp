@@ -78,7 +78,7 @@ string Competitor::calculateRaceClass(int age)
 string Competitor::toStringSpecific() const
 {
     stringstream ss;
-    ss << "\nStarting number: " << this->startingNumber << endl;
+    ss << "Starting number: " << this->startingNumber << endl;
     if (this->timeResult == -1)
     {
         ss << "Time result: Not finished!" << endl;

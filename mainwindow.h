@@ -3,6 +3,7 @@
 
 #include "ContestHandler.h"
 #include <QMainWindow>
+#include <QListWidgetItem>
 
 namespace Ui {
 class MainWindow;
@@ -24,18 +25,23 @@ private slots:
     void startDialog();
     void saveToDb();
     void delPersonDialog();
+    void delTrackDialog();
 
     void on_BnAddCompetitor_clicked();
 
     void on_BnAddStaff_clicked();
-
-    void on_pushButton_clicked();
 
     void on_pushButton_2_clicked();
 
     void on_BnShowPeople_clicked();
 
     void on_BnAddResult_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void on_LW_people_itemClicked(QListWidgetItem *item);
+
+    void on_BnAddTrack_clicked();
 
 private:
     void createMenus();

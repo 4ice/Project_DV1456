@@ -207,6 +207,28 @@ void ContestHandler::addTrack(string trackName, int distance, string location, s
     }
     this->theTracks[this->nrOfTrack++] = new Track(trackName, distance, location, description);
 }
+bool ContestHandler::removeTrack(string trackName)
+{
+    bool trackFound = false;
+
+    for(int i = 0; i < this->nrOfTrack && trackFound == false; i++)
+    {
+        if(this->theTracks[i]->getTrackName() == trackName)
+        {
+            trackFound = true;
+            delete this->theTracks[i];
+            this->theTracks[i] = this->theTracks[--this->nrOfTrack];
+            this->theTracks[this->nrOfTrack] = nullptr;
+        }
+    }
+    return trackFound;
+}
+
+string ContestHandler::fetchTrackName(int index)
+{
+    return this->theTracks[index]->getTrackName();
+}
+
 int ContestHandler::posOfSsn(string ssn) const
 {
     int pos = -1;

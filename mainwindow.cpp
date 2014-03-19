@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include "DialogProgramStart.h"
 #include "DialogDeletePerson.h"
+#include "DialogDeleteTrack.h"
+#include "DialogError.h"
 #include "Competitor.h"
 #include "Staff.h"
 #include <ctime>
@@ -34,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->LE_phoneNr_S->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
     ui->LE_Distance->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
     ui->LE_timeResult->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
+
+    //setup the combobox.
+    ui->CB_gender->addItem("Male");
+    ui->CB_gender->addItem("Female");
 
     startDialog();  //Open dialog for choosing contest
     this->theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
@@ -194,6 +200,18 @@ void MainWindow::delPersonDialog()
     }
     delete dialog;
 }
+void MainWindow::delTrackDialog()
+{
+    DialogDeleteTrack *dialog = new DialogDeleteTrack(*this->currentContest);
+
+    dialog->exec();
+
+    if(dialog->getTrackName() != "")
+    {
+        this->currentContest->removeTrack(dialog->getTrackName());
+    }
+    delete dialog;
+}
 
 void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string idOfContest)
 {
@@ -343,46 +361,51 @@ void MainWindow::createMenus()
     //Edit->Delete track
     delTrackAct = new QAction("&Delete track", this);
     editMenu->addAction(delTrackAct);
-    connect(delTrackAct, SIGNAL(triggered()), this, SLOT(close()));
+    connect(delTrackAct, SIGNAL(triggered()), this, SLOT(delTrackDialog()));
 }
 void MainWindow::on_BnAddCompetitor_clicked()
 {
-    //Add competitor
-    this->currentContest->addPerson(this->year, ui->LE_name->text().toStdString(), ui->LE_mail->text().toStdString(),
-                                    ui->LE_SSN->text().toStdString(), ui->LE_gender->text().toStdString(),
-                                    ui->LE_startingNr->text().toInt());
-    //Clear the input fields
-    ui->LE_name->clear();
-    ui->LE_mail->clear();
-    ui->LE_gender->clear();
-    ui->LE_SSN->clear();
-    ui->LE_startingNr->clear();
+    //name, mail, ssn, startingNumber
+    if(ui->LE_name->text() != "" && ui->LE_mail->text() != "" && ui->LE_SSN->text() != "" && ui->LE_startingNr->text() != "")
+    {
+        //Add competitor
+        this->currentContest->addPerson(this->year, ui->LE_name->text().toStdString(), ui->LE_mail->text().toStdString(),
+                                        ui->LE_SSN->text().toStdString(), ui->CB_gender->currentText().toStdString(),
+                                        ui->LE_startingNr->text().toInt());
+
+        //Clear the input fields
+        ui->LE_name->clear();
+        ui->LE_mail->clear();
+        ui->LE_SSN->clear();
+        ui->LE_startingNr->clear();
+    }
+    else
+    {
+        DialogError dialog("Input missing in one/several of the fields.");
+        dialog.exec();
+    }
 }
 void MainWindow::on_BnAddStaff_clicked()
 {
-    //Add staff
-    this->currentContest->addPerson(ui->LE_name_S->text().toStdString(), ui->LE_mail_S->text().toStdString(), ui->LE_SSN_S->text().toStdString(),
-                                    ui->LE_task_S->text().toStdString(), ui->LE_phoneNr_S->text().toStdString());
+    if(ui->LE_name_S->text() != "" && ui->LE_mail_S->text() != "" && ui->LE_task_S->text() != "" && ui->LE_SSN_S->text() != "" && ui->LE_phoneNr_S->text() != "")
+    {
+        //Add staff
+        this->currentContest->addPerson(ui->LE_name_S->text().toStdString(), ui->LE_mail_S->text().toStdString(), ui->LE_SSN_S->text().toStdString(),
+                                            ui->LE_task_S->text().toStdString(), ui->LE_phoneNr_S->text().toStdString());
 
-    //Clear the input fields
-    ui->LE_name_S->clear();
-    ui->LE_mail_S->clear();
-    ui->LE_task_S->clear();
-    ui->LE_phoneNr_S->clear();
-    ui->LE_SSN_S->clear();
+        //Clear the input fields
+        ui->LE_name_S->clear();
+        ui->LE_mail_S->clear();
+        ui->LE_task_S->clear();
+        ui->LE_SSN_S->clear();
+        ui->LE_phoneNr_S->clear();
+    }
+    else
+    {
+        DialogError dialog("Input missing in one/several of the fields.");
+        dialog.exec();
+    }
 }
-
-void MainWindow::on_pushButton_clicked()
-{
-    //Add
-    this->currentContest->addTrack(ui->LE_TrackName->text().toStdString(), stoi(ui->LE_Distance->text().toStdString()), ui->LE_Location->text().toStdString(), ui->PTE_Description->toPlainText().toStdString());
-
-    ui->LE_TrackName->clear();
-    ui->LE_Distance->clear();
-    ui->LE_Location->clear();
-    ui->PTE_Description->clear();
-}
-
 void MainWindow::on_pushButton_2_clicked()
 {
     ui->textBrowser->setText(QString::fromStdString(this->currentContest->toString("tracks")));
@@ -390,6 +413,7 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_BnShowPeople_clicked()
 {
+    ui->LW_people->clear();
     int nrOfCompetitors = 0;
     delete [] this->theCompetitors;
     theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
@@ -399,7 +423,6 @@ void MainWindow::on_BnShowPeople_clicked()
         if(theCompetitors[i].getName() != "")
         {
             ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
-            ui->LE_timeResult->clear();
         }
     }
 }
@@ -407,6 +430,38 @@ void MainWindow::on_BnAddResult_clicked()
 {
     //Add the result to the proper person
     this->currentContest->addResult(this->theCompetitors[ui->LW_people->currentRow()].getSsn(), ui->LE_timeResult->text().toInt());
+    ui->LE_timeResult->clear();
+
 
     //Also check if this is a track-record
+}
+void MainWindow::on_pushButton_3_clicked()
+{
+    ui->LB_People_info->setText(QString::fromStdString(this->currentContest->toString()));
+}
+
+void MainWindow::on_LW_people_itemClicked(QListWidgetItem *item)
+{
+    ui->LW_Tracks->clear();
+    ui->LW_Tracks->addItem(QString::fromStdString(this->currentContest->fetchTrackName(0)));
+}
+
+void MainWindow::on_BnAddTrack_clicked()
+{
+    if(ui->LE_TrackName->text() != "" && ui->LE_Distance->text() != "" && ui->LE_Location->text() != "" && ui->PTE_Description->toPlainText().toStdString() != "")
+    {
+        //Add
+        this->currentContest->addTrack(ui->LE_TrackName->text().toStdString(), stoi(ui->LE_Distance->text().toStdString()), ui->LE_Location->text().toStdString(), ui->PTE_Description->toPlainText().toStdString());
+
+        //Clear the input fields
+        ui->LE_TrackName->clear();
+        ui->LE_Distance->clear();
+        ui->LE_Location->clear();
+        ui->PTE_Description->clear();
+    }
+    else
+    {
+        DialogError dialog("Input missing in one/several of the fields.");
+        dialog.exec();
+    }
 }

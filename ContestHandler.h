@@ -38,10 +38,11 @@ public:
     PersonNameSsn contestantInfo(int index) const;
     PersonNameSsn staffInfo(int index) const;
     void addTrack(string trackName, int distance, string location, string description);
-
+    bool removeTrack(string trackName);
+    string fetchTrackName(int index);
     int posOfSsn(string ssn) const;
     void addResult(string ssn, int result);
-    string toString(string what = "") const;
+    string toString(string what = "people") const;
     string toSqlSaveString(int index, string what) const;
 };
 #endif

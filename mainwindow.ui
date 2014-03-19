@@ -21,7 +21,7 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;test&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -125,16 +125,6 @@
          <string>Gender</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="LE_gender">
-        <property name="geometry">
-         <rect>
-          <x>132</x>
-          <y>65</y>
-          <width>108</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
        <widget class="QPushButton" name="BnAddCompetitor">
         <property name="geometry">
          <rect>
@@ -179,6 +169,16 @@
         </property>
         <property name="text">
          <string>Active Contest:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="CB_gender">
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>65</y>
+          <width>108</width>
+          <height>22</height>
+         </rect>
         </property>
        </widget>
       </widget>
@@ -424,7 +424,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="BnAddTrack">
         <property name="geometry">
          <rect>
           <x>9</x>
@@ -535,6 +535,44 @@
           <width>91</width>
           <height>192</height>
          </rect>
+        </property>
+       </widget>
+       <widget class="QListWidget" name="LW_Tracks">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>30</y>
+          <width>91</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_5">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+       <widget class="QTextBrowser" name="LB_People_info">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>256</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="geometry">
+         <rect>
+          <x>110</x>
+          <y>230</y>
+          <width>81</width>
+          <height>22</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>PushButton</string>
         </property>
        </widget>
       </widget>
