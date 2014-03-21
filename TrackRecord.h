@@ -11,9 +11,8 @@ private:
     string recordHolder;
     int time;
     string date;
-    string raceClass;
 public:
-    TrackRecord(string recordHolder="Unknown", int time = -1, string date = "000000");
+    TrackRecord(string recordHolder="", int time = -1, string date = "-");
     virtual ~TrackRecord();
     string getRecordHolder() const;
     int getTime() const;

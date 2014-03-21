@@ -1,12 +1,14 @@
 #include "Track.h"
 #include <sstream>
 
-Track::Track(string trackName, int distance, string location, string description)
+Track::Track(string trackName, int distance, string location, string description, int databaseId)
 {
     this->trackName = trackName;
     this->distance = distance;
     this->location = location;
     this->description = description;
+    this->databaseId = databaseId;
+    this->record
 }
 Track::~Track()
 {
@@ -30,6 +32,10 @@ string Track::getLocation() const
 string Track::getDescription() const
 {
     return this->description;
+}
+int Track::getDatabaseId() const
+{
+    return this->databaseId;
 }
 void Track::setTrackName(string trackName)
 {
@@ -58,6 +64,11 @@ void Track::setDescription(string description)
 {
     this->description = description;
 }
+void Track::setDatabaseId(int databaseId)
+{
+    this->databaseId = databaseId;
+}
+
 string Track::toString() const
 {
     stringstream ss;
@@ -82,6 +93,21 @@ Track *Track::clone() const
 }
 string Track::toSqlSaveString() const
 {
-    return "INSERT IGNORE INTO `project_DV1456`.`TRACK` (`track_name`, `distance`, `location`, `description`, `CONTESTS_contest_id`) VALUES ('"
-            +this->trackName+"', '"+to_string(this->distance)+"', '"+this->location+"', '"+this->description+"', '";
+    string result = "";
+
+    if(this->getDatabaseId() == -1)
+    {   //create a new Row in the database.
+
+        result = "INSERT INTO `project_DV1456`.`track` (`track_name`, `distance`, `location`, `description`, `contests_contest_id`) VALUES ('"
+                +this->trackName+"', '"+to_string(this->distance)+"', '"+this->location+"', '"+this->description+"', '";
+    }
+    else
+    {
+        result = "UPDATE `project_DV1456`.`track` SET track_name = \""+ this->trackName+
+                "\", distance = "+ to_string(this->distance)+
+                ", location = \""+ this->location+
+                "\", description = \""+ this->description+
+                "\" WHERE track_id = "+ to_string(this->databaseId)+";";
+    }
+    return result;
 }

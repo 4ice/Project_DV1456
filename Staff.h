@@ -8,7 +8,7 @@ private:
     string task;
     string phoneNr;
 public:
-    Staff(string name = "?", string mail = "?", string ssn="", string task = "?", string phoneNr = "?");
+    Staff(int databaseId, string name = "?", string mail = "?", string ssn="", string task = "?", string phoneNr = "?");
     virtual ~Staff();
     string getTask() const;
     string getPhoneNr() const;

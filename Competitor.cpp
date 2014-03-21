@@ -10,8 +10,8 @@ Competitor::Competitor()
     this->timeResult = -1;
 }
 
-Competitor::Competitor(int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int timeResult)
-    :People(name, mail, ssn)
+Competitor::Competitor(int databaseId, int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int timeResult)
+    :People(name, mail, ssn, databaseId)
 {
     this->gender = gender;
     this->startingNumber = startingNumber;
@@ -48,6 +48,9 @@ void Competitor::setStartingNumber(int startingNumber)
 void Competitor::setTimeResult(int timeResult)
 {
     this->timeResult = timeResult;
+
+    //After a time is set, check if it's a record.
+
 }
 void Competitor::setRaceClass(string raceClass)
 {
@@ -95,7 +98,24 @@ Competitor *Competitor::clone() const
 }
 string Competitor::toSqlSaveStringSpecific() const
 {
-    return "INSERT IGNORE INTO `project_DV1456`.`contestant` (`name`, `mail`, `SSN`, `gender`, `startingNumber`, `timeResult`, `raceClass`, `contests_contest_id`) VALUES('"
-            +this->getName()+"', '"+this->getMail()+"', '"+this->getSsn()+"', '"+this->gender+"', '"
-            +to_string(this->startingNumber)+"', '"+to_string(this->timeResult)+"', '"+this->raceClass+"', '";
+    string result = "";
+
+    if(this->getDatabaseId() == -1)
+    {
+        result = "INSERT IGNORE INTO `project_DV1456`.`contestant` (`name`, `mail`, `SSN`, `gender`, `startingNumber`, `timeResult`, `raceClass`, `contests_contest_id`) VALUES('"
+                +this->getName()+"', '"+this->getMail()+"', '"+this->getSsn()+"', '"+this->gender+"', '"
+                +to_string(this->startingNumber)+"', '"+to_string(this->timeResult)+"', '"+this->raceClass+"', '";
+    }
+    else
+    {
+        result = "UPDATE `project_DV1456`.`contestant` SET SSN = "+ this->getSsn()+
+                ", name = \""+ this->getName()+
+                "\", mail = \""+ this->getMail()+
+                "\", gender = \""+ this->gender+
+                "\", startingNumber = "+ to_string(this->startingNumber)+
+                ", timeResult = "+ to_string(this->timeResult)+
+                ", raceClass = \""+ this->raceClass+
+                "\" WHERE contestant_id = "+ to_string(this->getDatabaseId())+";";
+    }
+    return result;
 }

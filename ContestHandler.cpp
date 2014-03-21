@@ -1,10 +1,11 @@
 #include "ContestHandler.h"
 
 
-ContestHandler::ContestHandler(string contestName, int currentYear)
+ContestHandler::ContestHandler(string contestName, int contestYear, int contestId)
 {
     this->contestName = contestName;
-    this->currentYear = currentYear;
+    this->contestYear = contestYear;
+    this->contestId = contestId;
 
     this->capPpl = 50;
     this->nrOfPpl = 0;
@@ -42,7 +43,7 @@ void ContestHandler::freeMemory()
 void ContestHandler::copyHelper(const ContestHandler &origObj)
 {
     this->contestName = origObj.contestName;
-    this->currentYear = origObj.currentYear;
+    this->contestYear = origObj.contestYear;
 
     this->capPpl = origObj.capPpl;
     this->nrOfPpl = origObj.nrOfPpl;
@@ -82,13 +83,17 @@ void ContestHandler::operator =(const ContestHandler &origObj)
     freeMemory();
     copyHelper(origObj);
 }
+int ContestHandler::getContestId() const
+{
+    return this->contestId;
+}
 string ContestHandler::getContestName() const
 {
     return this->contestName;
 }
-int ContestHandler::getYear() const
+int ContestHandler::getContestYear() const
 {
-    return this->currentYear;
+    return this->contestYear;
 }
 void ContestHandler::setContestName(string contestName)
 {
@@ -102,11 +107,15 @@ int ContestHandler::getNrOfTracks() const
 {
     return this->nrOfTrack;
 }
-void ContestHandler::setCurrentYear(int currentYear)
+void ContestHandler::setContestId(int contestId)
 {
-    this->currentYear = currentYear;
+    this->contestId = contestId;
 }
-void ContestHandler::addPerson(int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int timeResult)
+void ContestHandler::setContestYear(int contestYear)
+{
+    this->contestYear = contestYear;
+}
+void ContestHandler::addPerson(int contestYear, string name, string mail, string ssn, string gender, int startingNumber, int databaseId, int timeResult)
 {
     if(this->nrOfPpl == this->capPpl)
     {
@@ -124,9 +133,9 @@ void ContestHandler::addPerson(int currentYear, string name, string mail, string
         this->thePeople = temp;
         temp = nullptr;
     }
-    this->thePeople[this->nrOfPpl++] = new Competitor(currentYear, name, mail, ssn, gender, startingNumber, timeResult);
+    this->thePeople[this->nrOfPpl++] = new Competitor(databaseId, contestYear, name, mail, ssn, gender, startingNumber, timeResult);
 }
-void ContestHandler::addPerson(string name, string mail, string ssn, string task, string phoneNr)
+void ContestHandler::addPerson(string name, string mail, string ssn, string task, string phoneNr, int databaseId)
 {
     if(this->nrOfPpl == this->capPpl)
     {
@@ -144,7 +153,7 @@ void ContestHandler::addPerson(string name, string mail, string ssn, string task
         this->thePeople = temp;
         temp = nullptr;
     }
-    this->thePeople[this->nrOfPpl] = new Staff(name, mail, ssn, task, phoneNr);
+    this->thePeople[this->nrOfPpl] = new Staff(databaseId, name, mail, ssn, task, phoneNr);
     this->nrOfPpl++;
 }
 bool ContestHandler::removePerson(string ssn)
@@ -187,7 +196,7 @@ PersonNameSsn ContestHandler::staffInfo(int index) const
     }
     return result;
 }
-void ContestHandler::addTrack(string trackName, int distance, string location, string description)
+void ContestHandler::addTrack(string trackName, int distance, string location, string description, int databaseId)
 {
     if(this->nrOfTrack == this->capTrack)
     {
@@ -205,7 +214,7 @@ void ContestHandler::addTrack(string trackName, int distance, string location, s
         this->theTracks = temp;
         temp = nullptr;
     }
-    this->theTracks[this->nrOfTrack++] = new Track(trackName, distance, location, description);
+    this->theTracks[this->nrOfTrack++] = new Track(trackName, distance, location, description, databaseId);
 }
 bool ContestHandler::removeTrack(string trackName)
 {
@@ -249,6 +258,14 @@ void ContestHandler::addResult(string ssn, int result)
     {
         aCompetitor->setTimeResult(result);
     }
+}
+int ContestHandler::peopleDatabaseId(int index) const
+{
+    return this->thePeople[index]->getDatabaseId();
+}
+int ContestHandler::trackDatabaseId(int index) const
+{
+    return this->theTracks[index]->getDatabaseId();
 }
 string ContestHandler::toString(string what) const
 {
@@ -295,7 +312,7 @@ string ContestHandler::toString(string what) const
     }
     return result;
 }
-string ContestHandler::toSqlSaveString(int index, string what) const
+string ContestHandler::toSqlSaveStringSpecific(int index, string what) const
 {
     string result = "";
     if(what == "people")
@@ -303,6 +320,19 @@ string ContestHandler::toSqlSaveString(int index, string what) const
         result = this->thePeople[index]->toSqlSaveStringSpecific();
     }
     if(what == "track")
+    {
+        result = this->theTracks[index]->toSqlSaveString();
+    }
+    return result;
+}
+string ContestHandler::toSqlInsertString(int index, string what) const
+{
+    string result = "";
+    if(what == "people")
+    {
+        result = this->thePeople[index]->toSqlSaveStringSpecific();
+    }
+    else if(what == "track")
     {
         result = this->theTracks[index]->toSqlSaveString();
     }

@@ -39,7 +39,7 @@ private slots:
 
     void on_pushButton_3_clicked();
 
-    void on_LW_people_itemClicked(QListWidgetItem *item);
+    void on_LW_people_itemClicked();
 
     void on_BnAddTrack_clicked();
 
@@ -49,7 +49,6 @@ private:
     Ui::MainWindow *ui;
     int year;
     ContestHandler *currentContest;
-    int idOfContest;
     PersonNameSsn *theCompetitors;
 
     //Bar menu and actions

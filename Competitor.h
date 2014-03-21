@@ -11,7 +11,7 @@ private:
     string raceClass;
 public:
     Competitor();
-    Competitor(int currentYear, string name, string mail, string ssn, string gender, int startingNumber = 1, int timeResult=-1);
+    Competitor(int databaseId, int currentYear, string name, string mail, string ssn, string gender, int startingNumber = 1, int timeResult=-1);
     virtual ~Competitor();
     int getBirthDate() const;
     string getGender() const;

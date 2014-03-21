@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     this->currentContest = nullptr;
-    idOfContest = -1;
+    this->theCompetitors = nullptr;
 
     ui->setupUi(this);
     createMenus();  //Creates the menus at the top of the window
@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->CB_gender->addItem("Female");
 
     startDialog();  //Open dialog for choosing contest
-    this->theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
 }
 
 MainWindow::~MainWindow()
@@ -65,7 +64,7 @@ void MainWindow::startDialog()
     }
     else
     {
-        dialog = new DialogProgramStart(this->currentContest->getContestName(), this->idOfContest);
+        dialog = new DialogProgramStart(this->currentContest->getContestName(), this->currentContest->getContestId());
     }
     dialog->exec();
 
@@ -80,6 +79,8 @@ void MainWindow::startDialog()
         ui->LActiveContest_S->setText("Active contest: " + QString::fromStdString(this->currentContest->getContestName().c_str()));
         ui->BnAddCompetitor->setEnabled(true);
         ui->BnAddStaff->setEnabled(true);
+        ui->BnAddTrack->setEnabled(true);
+        ui->BnAddResult->setEnabled(true);
     }
     else if(dialog->getDatabaseContestName() != "")
     {
@@ -87,13 +88,15 @@ void MainWindow::startDialog()
         {
             delete this->currentContest;
         }
-        this->idOfContest = dialog->getIdOfContest();
-        loadDatabaseToContestHandler(dialog->getDatabaseContestName(), to_string(idOfContest));
+
+        loadDatabaseToContestHandler(dialog->getDatabaseContestName(), to_string(dialog->getIdOfContest()));
 
         ui->LActiveContest->setText("Active contest: " + QString::fromStdString(this->currentContest->getContestName().c_str()));
         ui->LActiveContest_S->setText("Active contest: " + QString::fromStdString(this->currentContest->getContestName().c_str()));
         ui->BnAddCompetitor->setEnabled(true);
         ui->BnAddStaff->setEnabled(true);
+        ui->BnAddTrack->setEnabled(true);
+        ui->BnAddResult->setEnabled(true);
     }
     else    //No contest currently loaded...
     {
@@ -101,92 +104,160 @@ void MainWindow::startDialog()
         ui->LActiveContest_S->setText("Active contest: No contest loaded");
         ui->BnAddCompetitor->setEnabled(false);
         ui->BnAddStaff->setEnabled(false);
+        ui->BnAddTrack->setEnabled(false);
+        ui->BnAddResult->setEnabled(false);
     }
     delete dialog;
+
+    if(this->currentContest != nullptr)
+    {
+        this->theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
+
+
+    }
 }
 void MainWindow::saveToDb()
 {
-    //INSERT INTO `project_DV1456`.`contestant` (`name`, `mail`, `birthDate`, `gender`, `startingNumber`, `timeResult`, `raceClass`, `CONTESTS_contest_id`)
-    //                              VALUES ('Kalle', 'kalle@mail.com', '940512', 'male', '125', '100', 'P20', '2');
-    string url = "localhost";
-    const string user = "root";
-    const string pass = "1";
-    const string database = "project_DV1456";
-
-    //Insert values into Table "contests" aswell as get the id of the contest is is inserted...
-    try
+    if(this->currentContest != nullptr) //If there is no contest loaded, we should not try to save...
     {
-        sql::Driver* driver = get_driver_instance();
-        std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
-        con->setSchema(database);
-        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        //INSERT INTO `project_DV1456`.`contestant` (`name`, `mail`, `birthDate`, `gender`, `startingNumber`, `timeResult`, `raceClass`, `CONTESTS_contest_id`)
+        //                              VALUES ('Kalle', 'kalle@mail.com', '940512', 'male', '125', '100', 'P20', '2');
+        string url = "localhost";
+        const string user = "root";
+        const string pass = "1";
+        const string database = "project_DV1456";
 
-        for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
+        //Insert or Update the Contests-row
+        try
         {
-            //insert people into the database
-            stmt->execute(this->currentContest->toSqlSaveString(i, "people")+to_string(this->idOfContest)+"');");
+            sql::Driver* driver = get_driver_instance();
+            std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+            con->setSchema(database);
+            std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+            if(this->currentContest->getContestId() != -1)  //row already exists, update it
+            {
+                stmt->execute("UPDATE project_DV1456.contests SET contest_name = \""+this->currentContest->getContestName() +
+                              "\", year_of_contest = "+to_string(this->currentContest->getContestYear())+" WHERE contest_id = "
+                              +to_string(this->currentContest->getContestId())+";");
+            }
+            else    //Row doesn't exist, insert new one
+            {
+                stmt->execute("INSERT INTO `project_DV1456`.`contests` (`contest_name`, `year_of_contest`) VALUES ('"+
+                              this->currentContest->getContestName()+"', '"+to_string(this->currentContest->getContestYear())+"');");
+
+
+                //retrieve the databaseId of the newly inserted contest.
+                stmt->execute("SELECT contest_id FROM project_DV1456.contests WHERE contest_name = \""+this->currentContest->getContestName()+
+                              "\" AND year_of_contest = "+to_string(this->currentContest->getContestYear())+";");
+                std::unique_ptr< sql::ResultSet > res;
+                res.reset(stmt->getResultSet());
+                res->next();
+                this->currentContest->setContestId(res->getInt("contest_id"));
+            }
         }
-        for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+        catch(sql::SQLException &e)
         {
-            //insert tracks into the database
-            stmt->execute(this->currentContest->toSqlSaveString(i, "track")+to_string(this->idOfContest)+"');");
+            /*
+            MySQL Connector/C++ throws three different exceptions:
 
+            - sql::MethodNotImplementedException (derived from sql::SQLException)
+            - sql::InvalidArgumentException (derived from sql::SQLException)
+            - sql::SQLException (derived from std::runtime_error)
+                    */
+            cout << "# ERR: SQLException in " << __FILE__;
+            cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+            /* what() (derived from std::runtime_error) fetches error message */
+            cout << "# ERR: " << e.what();
+            cout << " (MySQL error code: " << e.getErrorCode();
+            cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        }
+
+        //Insert or Update the people
+        try
+        {
+            sql::Driver* driver = get_driver_instance();
+            std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+            con->setSchema(database);
+            std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+            for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
+            {
+                //insert people into the database
+                if(this->currentContest->peopleDatabaseId(i) != -1) //if the row does exist in the database, do the update:
+                {
+                    stmt->execute(this->currentContest->toSqlInsertString(i, "people"));
+
+                }
+                else    //Else; do the insert:
+                {
+                    stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "people")+to_string(this->currentContest->getContestId())+"');");
+                }
+            }
+//            for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+//            {
+//                //insert tracks into the database
+//                stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "track")+to_string(this->currentContest->getContestId())+"');");
+
+//            }
+        }
+        catch(sql::SQLException &e)
+        {
+            /*
+            MySQL Connector/C++ throws three different exceptions:
+
+            - sql::MethodNotImplementedException (derived from sql::SQLException)
+            - sql::InvalidArgumentException (derived from sql::SQLException)
+            - sql::SQLException (derived from std::runtime_error)
+                    */
+            cout << "# ERR: SQLException in " << __FILE__;
+            cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+            /* what() (derived from std::runtime_error) fetches error message */
+            cout << "# ERR: " << e.what();
+            cout << " (MySQL error code: " << e.getErrorCode();
+            cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        }
+        try
+        {
+            sql::Driver* driver = get_driver_instance();
+            std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+            con->setSchema(database);
+            std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+            for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+            {
+                if(this->currentContest->trackDatabaseId(i) != -1)  //if the row does exist in the database, do the update:
+                {
+                    stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "track"));
+                }
+                else
+                {
+                    stmt->execute(this->currentContest->toSqlInsertString(i, "track")+to_string(this->currentContest->getContestId())+"');");
+                }
+            }
+        }
+        catch(sql::SQLException &e)
+        {
+            /*
+            MySQL Connector/C++ throws three different exceptions:
+
+            - sql::MethodNotImplementedException (derived from sql::SQLException)
+            - sql::InvalidArgumentException (derived from sql::SQLException)
+            - sql::SQLException (derived from std::runtime_error)
+                    */
+            cout << "# ERR: SQLException in " << __FILE__;
+            cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+            /* what() (derived from std::runtime_error) fetches error message */
+            cout << "# ERR: " << e.what();
+            cout << " (MySQL error code: " << e.getErrorCode();
+            cout << ", SQLState: " << e.getSQLState() << " )" << endl;
         }
     }
-    catch(sql::SQLException &e)
+    else
     {
-        /*
-        MySQL Connector/C++ throws three different exceptions:
-
-        - sql::MethodNotImplementedException (derived from sql::SQLException)
-        - sql::InvalidArgumentException (derived from sql::SQLException)
-        - sql::SQLException (derived from std::runtime_error)
-                */
-        cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-        /* what() (derived from std::runtime_error) fetches error message */
-        cout << "# ERR: " << e.what();
-        cout << " (MySQL error code: " << e.getErrorCode();
-        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        DialogError dialog("No contest loaded, nothing saved...");
+        dialog.exec();
     }
-
-    //Insert values into Table "contestant"
-    try
-    {
-        sql::Driver* driver = get_driver_instance();
-        std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
-        con->setSchema(database);
-        std::unique_ptr<sql::Statement> stmt(con->createStatement());
-
-        for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
-        {
-            //insert people into the database
-            stmt->execute(this->currentContest->toSqlSaveString(i, "people")+to_string(this->idOfContest)+"');");
-        }
-        for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
-        {
-            //insert tracks into the database
-            stmt->execute(this->currentContest->toSqlSaveString(i, "track")+to_string(this->idOfContest)+"');");
-
-        }
-    }
-    catch(sql::SQLException &e)
-    {
-        /*
-        MySQL Connector/C++ throws three different exceptions:
-
-        - sql::MethodNotImplementedException (derived from sql::SQLException)
-        - sql::InvalidArgumentException (derived from sql::SQLException)
-        - sql::SQLException (derived from std::runtime_error)
-                */
-        cout << "# ERR: SQLException in " << __FILE__;
-        cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-        /* what() (derived from std::runtime_error) fetches error message */
-        cout << "# ERR: " << e.what();
-        cout << " (MySQL error code: " << e.getErrorCode();
-        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-    }
-
 }
 void MainWindow::delPersonDialog()
 {
@@ -235,7 +306,7 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
         res.reset(stmt->getResultSet());
         res->next();
 
-        this->currentContest = new ContestHandler(res->getString("contest_name"), res->getInt("year_of_contest"));
+        this->currentContest = new ContestHandler(res->getString("contest_name"), res->getInt("year_of_contest"), res->getInt("contest_id"));
     }
     catch(sql::SQLException &e)
     {
@@ -270,7 +341,7 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
             res.reset(stmt->getResultSet());
             while (res->next()) {
                 this->currentContest->addPerson(this->year, res->getString("name"), res->getString("mail"), res->getString("ssn"),
-                                                res->getString("gender"), res->getInt("startingNumber"), res->getInt("timeResult"));
+                                                res->getString("gender"), res->getInt("startingNumber"), res->getInt("contestant_id"), res->getInt("timeResult"));
             }
         } while(stmt->getMoreResults());
 
@@ -279,8 +350,8 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
         do  {
             res.reset(stmt->getResultSet());
             while (res->next()) {
-                this->currentContest->addPerson(res->getString("name"), res->getString("mail"),
-                                                res->getString("ssn"), res->getString("task"), res->getString("phoneNr"));
+                this->currentContest->addPerson(res->getString("name"), res->getString("mail"), res->getString("ssn"),
+                                                res->getString("task"), res->getString("phoneNr"), res->getInt("staff_id"));
             }
         } while(stmt->getMoreResults());
 
@@ -290,7 +361,7 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
             res.reset(stmt->getResultSet());
             while (res->next()) {
                 this->currentContest->addTrack(res->getString("track_name"), res->getInt("distance"),
-                                               res->getString("location"), res->getString("description"));
+                                               res->getString("location"), res->getString("description"), res->getInt("track_id"));
             }
         } while(stmt->getMoreResults());
 
@@ -345,19 +416,23 @@ void MainWindow::createMenus()
     changeContestAct = new QAction("&Change active contest", this);
     fileMenu->addAction(changeContestAct);
     connect(changeContestAct, SIGNAL(triggered()), this, SLOT(startDialog()));
+
     //File->save
     saveAct = new QAction("&Save to database", this);
     fileMenu->addAction(saveAct);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveToDb()));
+
     //File->Exit
     exitAct = new QAction("&Exit", this);
     fileMenu->addAction(exitAct);
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
+
     //Edit->Delete person
     delPersonAct= new QAction("&Delete person", this);
     editMenu->addAction(delPersonAct);
     connect(delPersonAct, SIGNAL(triggered()), this, SLOT(delPersonDialog()));
+
     //Edit->Delete track
     delTrackAct = new QAction("&Delete track", this);
     editMenu->addAction(delTrackAct);
@@ -371,7 +446,7 @@ void MainWindow::on_BnAddCompetitor_clicked()
         //Add competitor
         this->currentContest->addPerson(this->year, ui->LE_name->text().toStdString(), ui->LE_mail->text().toStdString(),
                                         ui->LE_SSN->text().toStdString(), ui->CB_gender->currentText().toStdString(),
-                                        ui->LE_startingNr->text().toInt());
+                                        ui->LE_startingNr->text().toInt(), -1);
 
         //Clear the input fields
         ui->LE_name->clear();
@@ -391,7 +466,7 @@ void MainWindow::on_BnAddStaff_clicked()
     {
         //Add staff
         this->currentContest->addPerson(ui->LE_name_S->text().toStdString(), ui->LE_mail_S->text().toStdString(), ui->LE_SSN_S->text().toStdString(),
-                                            ui->LE_task_S->text().toStdString(), ui->LE_phoneNr_S->text().toStdString());
+                                            ui->LE_task_S->text().toStdString(), ui->LE_phoneNr_S->text().toStdString(), -1);
 
         //Clear the input fields
         ui->LE_name_S->clear();
@@ -440,7 +515,7 @@ void MainWindow::on_pushButton_3_clicked()
     ui->LB_People_info->setText(QString::fromStdString(this->currentContest->toString()));
 }
 
-void MainWindow::on_LW_people_itemClicked(QListWidgetItem *item)
+void MainWindow::on_LW_people_itemClicked()
 {
     ui->LW_Tracks->clear();
     ui->LW_Tracks->addItem(QString::fromStdString(this->currentContest->fetchTrackName(0)));
@@ -451,7 +526,7 @@ void MainWindow::on_BnAddTrack_clicked()
     if(ui->LE_TrackName->text() != "" && ui->LE_Distance->text() != "" && ui->LE_Location->text() != "" && ui->PTE_Description->toPlainText().toStdString() != "")
     {
         //Add
-        this->currentContest->addTrack(ui->LE_TrackName->text().toStdString(), stoi(ui->LE_Distance->text().toStdString()), ui->LE_Location->text().toStdString(), ui->PTE_Description->toPlainText().toStdString());
+        this->currentContest->addTrack(ui->LE_TrackName->text().toStdString(), stoi(ui->LE_Distance->text().toStdString()), ui->LE_Location->text().toStdString(), ui->PTE_Description->toPlainText().toStdString(), -1);
 
         //Clear the input fields
         ui->LE_TrackName->clear();
