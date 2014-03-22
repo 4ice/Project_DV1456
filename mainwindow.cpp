@@ -1,13 +1,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+//The dialog-windows
 #include "DialogProgramStart.h"
 #include "DialogDeletePerson.h"
 #include "DialogDeleteTrack.h"
 #include "DialogError.h"
-#include "Competitor.h"
-#include "Staff.h"
+
+//To get the current year
 #include <ctime>
 
+
+//For the mySql connection
 #include "mysql_connection.h"
 
 #include <cppconn/driver.h>
@@ -15,6 +19,8 @@
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 #include <cppconn/prepared_statement.h>
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -82,7 +88,7 @@ void MainWindow::startDialog()
         ui->BnAddTrack->setEnabled(true);
         ui->BnAddResult->setEnabled(true);
     }
-    else if(dialog->getDatabaseContestName() != "")
+    else if(dialog->getDatabaseContestName() != "") //If this is true, then we just loaded a contest
     {
         if(this->currentContest != nullptr) //if true, there was another contest created earlier
         {
@@ -97,6 +103,11 @@ void MainWindow::startDialog()
         ui->BnAddStaff->setEnabled(true);
         ui->BnAddTrack->setEnabled(true);
         ui->BnAddResult->setEnabled(true);
+        ui->CB_track->clear();
+        for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+        {
+            ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+        }
     }
     else    //No contest currently loaded...
     {
@@ -217,6 +228,8 @@ void MainWindow::saveToDb()
             cout << " (MySQL error code: " << e.getErrorCode();
             cout << ", SQLState: " << e.getSQLState() << " )" << endl;
         }
+
+        //Insert or Update the tracks and the track_records
         try
         {
             sql::Driver* driver = get_driver_instance();
@@ -229,10 +242,30 @@ void MainWindow::saveToDb()
                 if(this->currentContest->trackDatabaseId(i) != -1)  //if the row does exist in the database, do the update:
                 {
                     stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "track"));
+                    for(int j = 0; j < 2; j++)
+                    {
+
+                        stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j));
+                    }
                 }
                 else
                 {
+
                     stmt->execute(this->currentContest->toSqlInsertString(i, "track")+to_string(this->currentContest->getContestId())+"');");
+
+                    //retrieve the databaseId of the newly inserted track.
+                    stmt->execute("SELECT track_id FROM project_DV1456.track WHERE track_name = \""+this->currentContest->trackName(i)+
+                                  "\" AND contests_contest_id = "+to_string(this->currentContest->getContestId())+";");
+                    std::unique_ptr< sql::ResultSet > res;
+                    res.reset(stmt->getResultSet());
+                    res->next();
+                    this->currentContest->setTrackDatabaseId(res->getInt("track_id"), i);
+
+                    for(int j = 0; j < 2; j++)
+                    {
+                        string test = this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j)+to_string(this->currentContest->trackDatabaseId(i))+"');";
+                        stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j)+to_string(this->currentContest->trackDatabaseId(i))+"');");
+                    }
                 }
             }
         }
@@ -333,10 +366,13 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
         std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
         con->setSchema(database);
         std::unique_ptr<sql::Statement> stmt(con->createStatement());
+        std::unique_ptr<sql::Statement> stmt2(con->createStatement());
 
         //Contestants
         stmt->execute("SELECT * FROM project_DV1456.contestant WHERE contests_contest_id=\""+ idOfContest +"\";");
-        std::auto_ptr< sql::ResultSet > res;
+        std::unique_ptr< sql::ResultSet > res;
+        std::unique_ptr< sql::ResultSet > res2;
+
         do  {
             res.reset(stmt->getResultSet());
             while (res->next()) {
@@ -355,18 +391,29 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
             }
         } while(stmt->getMoreResults());
 
-        //Track
+        //Track and records
         stmt->execute("SELECT * FROM project_DV1456.track WHERE contests_contest_id=\""+ idOfContest +"\";");
         do  {
+            int nrOfTracks = 0;
             res.reset(stmt->getResultSet());
             while (res->next()) {
+
                 this->currentContest->addTrack(res->getString("track_name"), res->getInt("distance"),
                                                res->getString("location"), res->getString("description"), res->getInt("track_id"));
+                //TrackRecords
+                stmt2->execute("SELECT * FROM project_DV1456.track_record WHERE track_track_id="+to_string(res->getInt("track_id"))+";");
+                do  {
+                    res2.reset(stmt2->getResultSet());
+                    for(int i = 0; i < 2; i++)
+                    {
+                        res2->next();
+                        this->currentContest->addRecordFromDb(nrOfTracks, res2->getString("recordHolder"), res2->getDouble("time"),
+                                                              res2->getString("date"), i, res2->getString("raceClass"), res2->getInt("track_record_id"));
+                    }
+                } while(stmt2->getMoreResults());
+                nrOfTracks++;
             }
         } while(stmt->getMoreResults());
-
-        //TrackRecord
-        //stmt->execute("SELECT * FROM project_DV1456.track_record WHERE TRACK_track_id=\""+this->currentContest->+"\";")
     }
     catch(sql::SQLException &e)
     {
@@ -495,7 +542,7 @@ void MainWindow::on_BnShowPeople_clicked()
     for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
     {
         theCompetitors[nrOfCompetitors] = this->currentContest->contestantInfo(i);
-        if(theCompetitors[i].getName() != "")
+        if(theCompetitors[nrOfCompetitors].getName() != "")
         {
             ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
         }
@@ -504,11 +551,12 @@ void MainWindow::on_BnShowPeople_clicked()
 void MainWindow::on_BnAddResult_clicked()
 {
     //Add the result to the proper person
-    this->currentContest->addResult(this->theCompetitors[ui->LW_people->currentRow()].getSsn(), ui->LE_timeResult->text().toInt());
+    this->currentContest->addResult(this->theCompetitors[ui->LW_people->currentRow()].getSsn(), ui->LE_timeResult->text().toDouble(), ui->LW_Tracks->currentRow());
     ui->LE_timeResult->clear();
 
 
     //Also check if this is a track-record
+
 }
 void MainWindow::on_pushButton_3_clicked()
 {
@@ -533,6 +581,12 @@ void MainWindow::on_BnAddTrack_clicked()
         ui->LE_Distance->clear();
         ui->LE_Location->clear();
         ui->PTE_Description->clear();
+
+        ui->CB_track->clear();
+        for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+        {
+            ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+        }
     }
     else
     {

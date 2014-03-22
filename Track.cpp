@@ -1,5 +1,7 @@
 #include "Track.h"
 #include <sstream>
+#include <cstdio>
+#include <ctime>
 
 Track::Track(string trackName, int distance, string location, string description, int databaseId)
 {
@@ -8,7 +10,6 @@ Track::Track(string trackName, int distance, string location, string description
     this->location = location;
     this->description = description;
     this->databaseId = databaseId;
-    this->record
 }
 Track::~Track()
 {
@@ -45,16 +46,9 @@ void Track::setDistance(int distance)
 {
     this->distance = distance;
 }
-void Track::setTrackRecord(string recordHolder, int time, string date, string gender)
+void Track::setTrackRecord(string recordHolder, double time, string date, int gender, string raceClass, int databaseId)
 {
-    if(gender == "male")
-    {
-        this->record[0] = TrackRecord(recordHolder, time, date);
-    }
-    else    //Female
-    {
-        this->record[1] = TrackRecord(recordHolder, time, date);
-    }
+    this->record[gender] = TrackRecord(recordHolder, time, date, raceClass, databaseId);
 }
 void Track::setLocation(string location)
 {
@@ -67,6 +61,32 @@ void Track::setDescription(string description)
 void Track::setDatabaseId(int databaseId)
 {
     this->databaseId = databaseId;
+}
+bool Track::checkRecord(int nrOfContestant, int gender, double timeResult, string name, string raceClass)    //gender 0 = male, gender 1 = female
+{
+    bool newRecord = false;
+
+    for(int i = 0; i < nrOfContestant && newRecord == false; i++)
+    {
+        if(timeResult < this->record[gender].getTime() || this->record[gender].getTime() == -1)
+        {
+            newRecord = true;
+
+            this->record[gender] = TrackRecord(name, timeResult, this->currentDate(), raceClass, this->record[gender].getDatabaseId());
+
+//            this->record[gender].setTime(timeResult);
+//            this->record[gender].setDate(this->currentDate());
+//            this->record[gender].setRecordHolder(name);
+        }
+    }
+    return newRecord;
+}
+string Track::currentDate() const
+{
+    char out[9];
+    std::time_t t=std::time(NULL);
+    std::strftime(out, sizeof(out), "%Y%m%d", std::localtime(&t));
+    return out;
 }
 
 string Track::toString() const
@@ -110,4 +130,8 @@ string Track::toSqlSaveString() const
                 "\" WHERE track_id = "+ to_string(this->databaseId)+";";
     }
     return result;
+}
+string Track::toSqlSaveStringRecords(int gender) const
+{
+    return this->record[gender].toSqlSaveString();
 }

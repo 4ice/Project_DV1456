@@ -9,18 +9,22 @@ class TrackRecord
 {
 private:
     string recordHolder;
-    int time;
+    double time;
     string date;
+    string raceClass;
+    int databaseId;
 public:
-    TrackRecord(string recordHolder="", int time = -1, string date = "-");
+    TrackRecord(string recordHolder="", double time = -1, string date = "-", string raceClass = "", int databaseId = -1);
     virtual ~TrackRecord();
     string getRecordHolder() const;
-    int getTime() const;
+    double getTime() const;
     string getDate() const;
+    int getDatabaseId() const;
     void setRecordHolder(string recordHolder);
-    void setTime(int time);
+    void setTime(double time);
     void setDate(string date);
     string toString() const;
+    string toSqlSaveString() const;
 };
 
 #endif // TRACKRECORD_H

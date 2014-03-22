@@ -172,6 +172,10 @@ bool ContestHandler::removePerson(string ssn)
     }
     return personFound;
 }
+string ContestHandler::trackName(int index) const
+{
+    return this->theTracks[index]->getTrackName();
+}
 PersonNameSsn ContestHandler::contestantInfo(int index) const
 {
     PersonNameSsn result;
@@ -251,13 +255,28 @@ int ContestHandler::posOfSsn(string ssn) const
     }
     return pos;
 }
-void ContestHandler::addResult(string ssn, int result)
+bool ContestHandler::addResult(string ssn, double result, int trackPos)
 {
+    bool newRecord = false;
+    //add the result to the person
     Competitor *aCompetitor = dynamic_cast<Competitor *>(this->thePeople[this->posOfSsn(ssn)]);
     if(aCompetitor != nullptr)
     {
         aCompetitor->setTimeResult(result);
+        if(aCompetitor->getGender() == "Male")
+        {                                          //the zero means that it's a male
+            newRecord = this->theTracks[trackPos]->checkRecord(this->nrOfPpl, 0, aCompetitor->getTimeResult(), aCompetitor->getName(), aCompetitor->getRaceClass());
+        }
+        else
+        {                                          //the one means that it's a female
+            newRecord = this->theTracks[trackPos]->checkRecord(this->nrOfPpl, 1, aCompetitor->getTimeResult(), aCompetitor->getName(), aCompetitor->getRaceClass());
+        }
     }
+    return newRecord;
+}
+void ContestHandler::addRecordFromDb(int posOfTrack, string recordHolder, double time, string date, int gender, string raceClass, int databaseId)
+{
+    this->theTracks[posOfTrack]->setTrackRecord(recordHolder, time, date, gender, raceClass, databaseId);
 }
 int ContestHandler::peopleDatabaseId(int index) const
 {
@@ -266,6 +285,10 @@ int ContestHandler::peopleDatabaseId(int index) const
 int ContestHandler::trackDatabaseId(int index) const
 {
     return this->theTracks[index]->getDatabaseId();
+}
+void ContestHandler::setTrackDatabaseId(int databaseId, int index)
+{
+    this->theTracks[index]->setDatabaseId(databaseId);
 }
 string ContestHandler::toString(string what) const
 {
@@ -312,7 +335,7 @@ string ContestHandler::toString(string what) const
     }
     return result;
 }
-string ContestHandler::toSqlSaveStringSpecific(int index, string what) const
+string ContestHandler::toSqlSaveStringSpecific(int index, string what, int gender) const
 {
     string result = "";
     if(what == "people")
@@ -322,6 +345,10 @@ string ContestHandler::toSqlSaveStringSpecific(int index, string what) const
     if(what == "track")
     {
         result = this->theTracks[index]->toSqlSaveString();
+    }
+    if(what == "trackRecord")
+    {
+        result = this->theTracks[index]->toSqlSaveStringRecords(gender);
     }
     return result;
 }

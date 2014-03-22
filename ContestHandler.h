@@ -40,17 +40,20 @@ public:
     void addPerson(int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int databaseId, int timeResult = -1);    //Competitor
     void addPerson(string name, string mail, string ssn, string task, string phoneNr, int databaseId);    //Staff
     bool removePerson(string ssn);  //number is specific for a person
+    string trackName(int index) const;
     PersonNameSsn contestantInfo(int index) const;
     PersonNameSsn staffInfo(int index) const;
     void addTrack(string trackName, int distance, string location, string description, int databaseId);
     bool removeTrack(string trackName);
     string fetchTrackName(int index);
     int posOfSsn(string ssn) const;
-    void addResult(string ssn, int result);
+    bool addResult(string ssn, double result, int trackPos);
+    void addRecordFromDb(int posOfTrack, string recordHolder, double time, string date, int gender, string raceClass, int databaseId);
     int peopleDatabaseId(int index) const;
     int trackDatabaseId(int index) const;
+    void setTrackDatabaseId(int databaseId, int index);
     string toString(string what = "people") const;
-    string toSqlSaveStringSpecific(int index, string what) const;
+    string toSqlSaveStringSpecific(int index, string what, int gender = -1) const;
     string toSqlInsertString(int index, string what) const;
 };
 #endif
