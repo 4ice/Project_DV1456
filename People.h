@@ -26,5 +26,6 @@ public:
     virtual string toStringSpecific() const=0;
     virtual People *clone() const=0;
     virtual string toSqlSaveStringSpecific() const=0;
+    virtual string toSqlDeleteStringSpecific() const=0;
 };
 #endif

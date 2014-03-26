@@ -37,7 +37,7 @@ public:
     void setContestId(int contestId);
     void setContestName(string contestName);
     void setContestYear(int contestYear);
-    void addPerson(int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int databaseId, int timeResult = -1);    //Competitor
+    void addPerson(int currentYear, string name, string mail, string ssn, string gender, string track, int startingNumber, int databaseId, int timeResult = -1);    //Competitor
     void addPerson(string name, string mail, string ssn, string task, string phoneNr, int databaseId);    //Staff
     bool removePerson(string ssn);  //number is specific for a person
     string trackName(int index) const;
@@ -47,13 +47,17 @@ public:
     bool removeTrack(string trackName);
     string fetchTrackName(int index);
     int posOfSsn(string ssn) const;
+    int posOfTrack(string trackName);
     bool addResult(string ssn, double result, int trackPos);
     void addRecordFromDb(int posOfTrack, string recordHolder, double time, string date, int gender, string raceClass, int databaseId);
     int peopleDatabaseId(int index) const;
     int trackDatabaseId(int index) const;
     void setTrackDatabaseId(int databaseId, int index);
+    string competitorsTrack(string ssn);
+    void recordInserted(int index, int gender, int recordDatabaseId);
     string toString(string what = "people") const;
     string toSqlSaveStringSpecific(int index, string what, int gender = -1) const;
     string toSqlInsertString(int index, string what) const;
+    string toSqlDeleteString(int index) const;
 };
 #endif

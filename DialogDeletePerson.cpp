@@ -63,8 +63,16 @@ void DialogDeletePerson::loadPeople()
 }
 void DialogDeletePerson::on_BnDelComp_clicked()
 {
-    this->ssn = this->persons[ui->LW_Competitor->currentRow()].getSsn();
-    close();
+    if(ui->LW_Competitor->currentRow() != -1)
+    {
+        this->ssn = this->persons[ui->LW_Competitor->currentRow()].getSsn();
+        close();
+    }
+    else
+    {
+        DialogError dialog("Select a competitor that you want to remove.");
+        dialog.exec();
+    }
 }
 
 void DialogDeletePerson::on_BnCancel_clicked()
@@ -74,8 +82,16 @@ void DialogDeletePerson::on_BnCancel_clicked()
 
 void DialogDeletePerson::on_BnDelStaff_clicked()
 {
-    this->ssn = this->persons[ui->LW_Staff->currentRow()+this->nrOfCompetitors].getSsn();
-    close();
+    if(ui->LW_Competitor->currentRow() != -1)
+    {
+        this->ssn = this->persons[ui->LW_Staff->currentRow()+this->nrOfCompetitors].getSsn();
+        close();
+    }
+    else
+    {
+        DialogError dialog("Select a staff member that you want to remove.");
+        dialog.exec();
+    }
 }
 void DialogDeletePerson::on_LW_Competitor_itemDoubleClicked()
 {

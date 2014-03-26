@@ -73,13 +73,13 @@ bool Track::checkRecord(int nrOfContestant, int gender, double timeResult, strin
             newRecord = true;
 
             this->record[gender] = TrackRecord(name, timeResult, this->currentDate(), raceClass, this->record[gender].getDatabaseId());
-
-//            this->record[gender].setTime(timeResult);
-//            this->record[gender].setDate(this->currentDate());
-//            this->record[gender].setRecordHolder(name);
         }
     }
     return newRecord;
+}
+void Track::editRecordDatabaseId(int gender, int recordDatabaseId)
+{
+    this->record[gender].setDatabaseId(recordDatabaseId);
 }
 string Track::currentDate() const
 {
@@ -115,7 +115,7 @@ string Track::toSqlSaveString() const
 {
     string result = "";
 
-    if(this->getDatabaseId() == -1)
+    if(this->databaseId == -1)
     {   //create a new Row in the database.
 
         result = "INSERT INTO `project_DV1456`.`track` (`track_name`, `distance`, `location`, `description`, `contests_contest_id`) VALUES ('"
@@ -133,5 +133,5 @@ string Track::toSqlSaveString() const
 }
 string Track::toSqlSaveStringRecords(int gender) const
 {
-    return this->record[gender].toSqlSaveString();
+    return this->record[gender].toSqlSaveString(gender);
 }

@@ -28,6 +28,7 @@ public:
     void setDescription(string description);
     void setDatabaseId(int databaseId);
     bool checkRecord(int nrOfContestant, int gender, double timeResult, string name, string raceClass);
+    void editRecordDatabaseId(int gender, int recordDatabaseId);
     string currentDate() const;
     string toString() const;
     Track *clone() const;

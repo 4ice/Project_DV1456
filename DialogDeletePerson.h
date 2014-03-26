@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include "ContestHandler.h"
+#include "DialogError.h"
 
 namespace Ui {
 class DialogDeletePerson;

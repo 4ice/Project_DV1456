@@ -115,7 +115,7 @@ void ContestHandler::setContestYear(int contestYear)
 {
     this->contestYear = contestYear;
 }
-void ContestHandler::addPerson(int contestYear, string name, string mail, string ssn, string gender, int startingNumber, int databaseId, int timeResult)
+void ContestHandler::addPerson(int contestYear, string name, string mail, string ssn, string gender, string track, int startingNumber, int databaseId, int timeResult)
 {
     if(this->nrOfPpl == this->capPpl)
     {
@@ -133,7 +133,7 @@ void ContestHandler::addPerson(int contestYear, string name, string mail, string
         this->thePeople = temp;
         temp = nullptr;
     }
-    this->thePeople[this->nrOfPpl++] = new Competitor(databaseId, contestYear, name, mail, ssn, gender, startingNumber, timeResult);
+    this->thePeople[this->nrOfPpl++] = new Competitor(databaseId, contestYear, name, mail, ssn, gender, track, startingNumber, timeResult);
 }
 void ContestHandler::addPerson(string name, string mail, string ssn, string task, string phoneNr, int databaseId)
 {
@@ -255,6 +255,20 @@ int ContestHandler::posOfSsn(string ssn) const
     }
     return pos;
 }
+int ContestHandler::posOfTrack(string trackName)
+{
+    int trackPos = -1;
+
+    for(int i = 0; i < this->nrOfTrack && trackPos == -1; i++)
+    {
+        if(this->theTracks[i]->getTrackName() == trackName)
+        {
+            trackPos = i;
+        }
+    }
+
+    return trackPos;
+}
 bool ContestHandler::addResult(string ssn, double result, int trackPos)
 {
     bool newRecord = false;
@@ -264,11 +278,11 @@ bool ContestHandler::addResult(string ssn, double result, int trackPos)
     {
         aCompetitor->setTimeResult(result);
         if(aCompetitor->getGender() == "Male")
-        {                                          //the zero means that it's a male
+        {                                                   //the zero means that it's a male
             newRecord = this->theTracks[trackPos]->checkRecord(this->nrOfPpl, 0, aCompetitor->getTimeResult(), aCompetitor->getName(), aCompetitor->getRaceClass());
         }
         else
-        {                                          //the one means that it's a female
+        {                                                    //the one means that it's a female
             newRecord = this->theTracks[trackPos]->checkRecord(this->nrOfPpl, 1, aCompetitor->getTimeResult(), aCompetitor->getName(), aCompetitor->getRaceClass());
         }
     }
@@ -364,4 +378,23 @@ string ContestHandler::toSqlInsertString(int index, string what) const
         result = this->theTracks[index]->toSqlSaveString();
     }
     return result;
+}
+void ContestHandler::recordInserted(int index, int gender, int recordDatabaseId)
+{
+    this->theTracks[index]->editRecordDatabaseId(gender, recordDatabaseId);
+}
+string ContestHandler::competitorsTrack(string ssn)
+{
+    string trackName = "";
+
+    Competitor *aCompetitor = dynamic_cast<Competitor *>(this->thePeople[posOfSsn(ssn)]);
+    if(aCompetitor != nullptr)
+    {
+        trackName = aCompetitor->getTrack();
+    }
+    return trackName;
+}
+string ContestHandler::toSqlDeleteString(int index) const
+{
+    return this->thePeople[index]->toSqlDeleteStringSpecific();
 }

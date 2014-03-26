@@ -5,6 +5,10 @@
 #include <QListWidgetItem>
 #include <string>
 #include "ContestHandler.h"
+#include "ContestNameYear.h"
+#include "ContestNameYear.h"
+
+using namespace std;
 
 namespace Ui {
 class DialogProgramStart;
@@ -15,29 +19,38 @@ class DialogProgramStart : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogProgramStart(std::string prevContestName = "", int idOfContest = -1, QWidget *parent = 0);
+    DialogProgramStart(string prevContestName = "", int idOfContest = -1, QWidget *parent = 0);
     ~DialogProgramStart();
-    std::string getContestName() const;
-    std::string getDatabaseContestName() const;
+    string getContestName() const;
+    string getDatabaseContestName() const;
     int getIdOfContest() const;
 
-private slots:
-    void loadDatabase();
-    int getIdFromDatabase(string contestName) const;
 
-    void on_BnCancel_clicked();
+private slots:
+    void on_BnLoad_clicked();
 
     void on_BnNew_clicked();
 
-    void on_BnLoad_clicked();
+    void on_BnCancel_clicked();
+
+    void on_BnDelete_clicked();
 
     void on_LW_openList_itemDoubleClicked(QListWidgetItem *item);
 
 private:
     Ui::DialogProgramStart *ui;
-    std::string contestName;
-    std::string databaseContestName;
-    int idOfContest;
+
+    string contestName;
+    int idOfContest;    //If this is -1, we haven't loaded a contest.
+    ContestNameYear **theContests;  //to have a connection between contestName and yearOfcontest
+    int capContestNameYear;
+    int nrOfContestNameYear;
+
+    void deleteContestFromDb();
+    void expandContestNameYearArray();
+    int currentYear();
+    void loadDatabase();
+    int getIdFromDatabase(int row) const;
 };
 
 #endif // DIALOGPROGRAMSTART_H

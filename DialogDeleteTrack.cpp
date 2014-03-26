@@ -30,8 +30,17 @@ void DialogDeleteTrack::on_BnCancel_clicked()
 
 void DialogDeleteTrack::on_BnOk_clicked()
 {
-    this->trackName = this->loadedContest.fetchTrackName(ui->LWTracks->currentRow());
-    close();
+    if(ui->LWTracks->currentRow() != -1)
+    {
+        this->trackName = this->loadedContest.fetchTrackName(ui->LWTracks->currentRow());
+
+        close();
+    }
+    else
+    {
+        DialogError dialog("Select a track that you want to remove.");
+        dialog.exec();
+    }
 }
 
 void DialogDeleteTrack::on_LWTracks_itemDoubleClicked()

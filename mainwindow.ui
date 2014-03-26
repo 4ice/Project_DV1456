@@ -15,13 +15,13 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
+    <item row="1" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="whatsThis">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;test&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -181,7 +181,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="LTrack">
         <property name="geometry">
          <rect>
           <x>9</x>
@@ -215,7 +215,7 @@
           <x>430</x>
           <y>9</y>
           <width>231</width>
-          <height>16</height>
+          <height>20</height>
          </rect>
         </property>
         <property name="text">
@@ -373,12 +373,12 @@
          <rect>
           <x>9</x>
           <y>37</y>
-          <width>55</width>
+          <width>91</width>
           <height>16</height>
          </rect>
         </property>
         <property name="text">
-         <string>Distance</string>
+         <string>Distance (Km)</string>
         </property>
        </widget>
        <widget class="QLabel" name="LLocation">
@@ -410,7 +410,7 @@
        <widget class="QLineEdit" name="LE_TrackName">
         <property name="geometry">
          <rect>
-          <x>87</x>
+          <x>132</x>
           <y>9</y>
           <width>108</width>
           <height>22</height>
@@ -420,7 +420,7 @@
        <widget class="QLineEdit" name="LE_Distance">
         <property name="geometry">
          <rect>
-          <x>87</x>
+          <x>132</x>
           <y>37</y>
           <width>108</width>
           <height>22</height>
@@ -430,7 +430,7 @@
        <widget class="QLineEdit" name="LE_Location">
         <property name="geometry">
          <rect>
-          <x>87</x>
+          <x>132</x>
           <y>65</y>
           <width>108</width>
           <height>22</height>
@@ -440,7 +440,7 @@
        <widget class="QPlainTextEdit" name="PTE_Description">
         <property name="geometry">
          <rect>
-          <x>87</x>
+          <x>132</x>
           <y>93</y>
           <width>256</width>
           <height>192</height>
@@ -452,35 +452,12 @@
          <rect>
           <x>9</x>
           <y>300</y>
-          <width>81</width>
+          <width>78</width>
           <height>22</height>
          </rect>
         </property>
         <property name="text">
          <string>Add</string>
-        </property>
-       </widget>
-       <widget class="QTextBrowser" name="textBrowser">
-        <property name="geometry">
-         <rect>
-          <x>350</x>
-          <y>93</y>
-          <width>211</width>
-          <height>192</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_2">
-        <property name="geometry">
-         <rect>
-          <x>460</x>
-          <y>300</y>
-          <width>81</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Show tracks</string>
         </property>
        </widget>
       </widget>
@@ -488,23 +465,10 @@
        <attribute name="title">
         <string>Add result</string>
        </attribute>
-       <widget class="QPushButton" name="BnAddResult">
+       <widget class="QLabel" name="LInfoRecord">
         <property name="geometry">
          <rect>
-          <x>460</x>
-          <y>100</y>
-          <width>81</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Add</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
+          <x>9</x>
           <y>10</y>
           <width>341</width>
           <height>16</height>
@@ -514,89 +478,72 @@
          <string>Choose the person that you want to add an result to:</string>
         </property>
        </widget>
-       <widget class="QLineEdit" name="LE_timeResult">
-        <property name="geometry">
-         <rect>
-          <x>440</x>
-          <y>70</y>
-          <width>113</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="LTimeResult">
-        <property name="geometry">
-         <rect>
-          <x>295</x>
-          <y>72</y>
-          <width>141</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Time result (seconds):</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="BnShowPeople">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>240</y>
-          <width>91</width>
-          <height>22</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>print people</string>
-        </property>
-       </widget>
        <widget class="QListWidget" name="LW_people">
         <property name="geometry">
          <rect>
-          <x>10</x>
+          <x>9</x>
           <y>30</y>
           <width>91</width>
-          <height>192</height>
+          <height>190</height>
          </rect>
         </property>
        </widget>
-       <widget class="QListWidget" name="LW_Tracks">
-        <property name="geometry">
-         <rect>
-          <x>120</x>
-          <y>30</y>
-          <width>91</width>
-          <height>192</height>
-         </rect>
-        </property>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="tab_5">
-       <attribute name="title">
-        <string>Page</string>
-       </attribute>
-       <widget class="QTextBrowser" name="LB_People_info">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>20</y>
-          <width>256</width>
-          <height>192</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QWidget" name="">
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>230</y>
-          <width>81</width>
-          <height>22</height>
+          <y>40</y>
+          <width>258</width>
+          <height>96</height>
          </rect>
         </property>
-        <property name="text">
-         <string>PushButton</string>
-        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QLabel" name="LInfoAddRecord">
+             <property name="text">
+              <string>that person competes on the track: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="LRecordTrackName">
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="LTimeResult">
+             <property name="text">
+              <string>Time result (seconds):</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="LE_timeResult"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="BnAddResult">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </widget>
      </widget>
@@ -649,6 +596,30 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>LE_name</tabstop>
+  <tabstop>LE_mail</tabstop>
+  <tabstop>CB_gender</tabstop>
+  <tabstop>LE_SSN</tabstop>
+  <tabstop>LE_startingNr</tabstop>
+  <tabstop>CB_track</tabstop>
+  <tabstop>BnAddCompetitor</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>LE_name_S</tabstop>
+  <tabstop>LE_mail_S</tabstop>
+  <tabstop>LE_task_S</tabstop>
+  <tabstop>LE_SSN_S</tabstop>
+  <tabstop>LE_phoneNr_S</tabstop>
+  <tabstop>BnAddStaff</tabstop>
+  <tabstop>LE_TrackName</tabstop>
+  <tabstop>LE_Distance</tabstop>
+  <tabstop>LE_Location</tabstop>
+  <tabstop>PTE_Description</tabstop>
+  <tabstop>BnAddTrack</tabstop>
+  <tabstop>LE_timeResult</tabstop>
+  <tabstop>BnAddResult</tabstop>
+  <tabstop>LW_people</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

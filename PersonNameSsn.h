@@ -5,6 +5,8 @@
 
 using namespace std;
 
+
+//A class to hold a name and ssn connected
 class PersonNameSsn
 {
 private:

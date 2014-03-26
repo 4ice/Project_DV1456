@@ -56,3 +56,7 @@ string Staff::toSqlSaveStringSpecific() const
     }
     return result;
 }
+string Staff::toSqlDeleteStringSpecific() const
+{
+    return "DELETE FROM `project_DV1456`.`staff` WHERE `staff_id`='";
+}

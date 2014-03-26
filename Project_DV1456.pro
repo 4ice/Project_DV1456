@@ -26,12 +26,11 @@ SOURCES += main.cpp\
     TrackRecord.cpp \
     DialogDeletePerson.cpp \
     PersonNameSsn.cpp \
-    tempDialogProgramStart.cpp \
     DialogProgramStart.cpp \
-    tempDialogNewContest.cpp \
     DialogNewContest.cpp \
     DialogDeleteTrack.cpp \
-    DialogError.cpp
+    DialogError.cpp \
+    ContestNameYear.cpp
 
 HEADERS  += mainwindow.h \
     People.h \
@@ -42,12 +41,11 @@ HEADERS  += mainwindow.h \
     TrackRecord.h \
     DialogDeletePerson.h \
     PersonNameSsn.h \
-    tempDialogProgramStart.h \
     DialogProgramStart.h \
-    tempDialogNewContest.h \
     DialogNewContest.h \
     DialogDeleteTrack.h \
-    DialogError.h
+    DialogError.h \
+    ContestNameYear.h
 
 FORMS    += mainwindow.ui \
     DialogDeletePerson.ui \

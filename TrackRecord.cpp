@@ -40,6 +40,10 @@ void TrackRecord::setDate(string date)
 {
     this->date = date;
 }
+void TrackRecord::setDatabaseId(int databaseId)
+{
+    this->databaseId = databaseId;
+}
 string TrackRecord::toString() const
 {
     stringstream ss;
@@ -47,9 +51,10 @@ string TrackRecord::toString() const
        << "\nDate of the record: " << this->date << endl;
     return ss.str();
 }
-string TrackRecord::toSqlSaveString() const
+string TrackRecord::toSqlSaveString(int gender) const
 {
     string result = "";
+
     if(this->databaseId != -1)
     {
         result = "UPDATE `project_DV1456`.`track_record` SET recordHolder = \""+ this->recordHolder+
@@ -60,8 +65,19 @@ string TrackRecord::toSqlSaveString() const
     }
     else
     {
-        result = "INSERT INTO `project_DV1456`.`track_record` (`recordHolder`, `time`, `date`, `raceClass`, `track_track_id`) VALUES ('"+
-                this->recordHolder+"', '"+to_string(this->time)+"', '"+this->date+"', '"+this->raceClass+"', '";
+        string theGender = "";
+
+        if(gender == 0)
+        {
+            theGender = "Male";
+        }
+        else
+        {
+            theGender = "Female";
+        }
+
+        result = "INSERT INTO `project_DV1456`.`track_record` (`recordHolder`, `time`, `date`, `raceClass`, `gender`, `track_track_id`) VALUES ('"+
+                this->recordHolder+"', '"+to_string(this->time)+"', '"+this->date+"', '"+this->raceClass+"', '"+theGender+"', '";
     }
     return result;
 }

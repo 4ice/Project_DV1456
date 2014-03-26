@@ -10,11 +10,12 @@ Competitor::Competitor()
     this->timeResult = -1;
 }
 
-Competitor::Competitor(int databaseId, int currentYear, string name, string mail, string ssn, string gender, int startingNumber, int timeResult)
+Competitor::Competitor(int databaseId, int currentYear, string name, string mail, string ssn, string gender, string track, int startingNumber, int timeResult)
     :People(name, mail, ssn, databaseId)
 {
     this->gender = gender;
     this->startingNumber = startingNumber;
+    this->track = track;
     this->raceClass = calculateRaceClass(this->age(std::stoi(this->getSsn().substr(0,4)), currentYear));
     this->timeResult = timeResult;
 }
@@ -37,6 +38,10 @@ string Competitor::getRaceClass() const
 {
     return this->raceClass;
 }
+string Competitor::getTrack() const
+{
+    return this->track;
+}
 void Competitor::setGender(string gender)
 {
     this->gender = gender;
@@ -48,13 +53,14 @@ void Competitor::setStartingNumber(int startingNumber)
 void Competitor::setTimeResult(int timeResult)
 {
     this->timeResult = timeResult;
-
-    //After a time is set, check if it's a record.
-
 }
 void Competitor::setRaceClass(string raceClass)
 {
     this->raceClass = raceClass;
+}
+void Competitor::setTrack(string track)
+{
+    this->track = track;
 }
 int Competitor::age(int birthYear, int currentYear) const
 {
@@ -81,7 +87,7 @@ string Competitor::calculateRaceClass(int age)
 string Competitor::toStringSpecific() const
 {
     stringstream ss;
-    ss << "Starting number: " << this->startingNumber << endl;
+    ss << "Competing on track: " << this->getTrack() << "\nStarting number: " << this->startingNumber << endl;
     if (this->timeResult == -1)
     {
         ss << "Time result: Not finished!" << endl;
@@ -102,8 +108,8 @@ string Competitor::toSqlSaveStringSpecific() const
 
     if(this->getDatabaseId() == -1)
     {
-        result = "INSERT IGNORE INTO `project_DV1456`.`contestant` (`name`, `mail`, `SSN`, `gender`, `startingNumber`, `timeResult`, `raceClass`, `contests_contest_id`) VALUES('"
-                +this->getName()+"', '"+this->getMail()+"', '"+this->getSsn()+"', '"+this->gender+"', '"
+        result = "INSERT IGNORE INTO `project_DV1456`.`contestant` (`name`, `mail`, `SSN`, `gender`, `track`, `startingNumber`, `timeResult`, `raceClass`, `contests_contest_id`) VALUES('"
+                +this->getName()+"', '"+this->getMail()+"', '"+this->getSsn()+"', '"+this->gender+"', '"+this->getTrack()+"', '"
                 +to_string(this->startingNumber)+"', '"+to_string(this->timeResult)+"', '"+this->raceClass+"', '";
     }
     else
@@ -112,6 +118,7 @@ string Competitor::toSqlSaveStringSpecific() const
                 ", name = \""+ this->getName()+
                 "\", mail = \""+ this->getMail()+
                 "\", gender = \""+ this->gender+
+                "\", startingNumber = \""+ this->getTrack()+
                 "\", startingNumber = "+ to_string(this->startingNumber)+
                 ", timeResult = "+ to_string(this->timeResult)+
                 ", raceClass = \""+ this->raceClass+
@@ -119,3 +126,9 @@ string Competitor::toSqlSaveStringSpecific() const
     }
     return result;
 }
+string Competitor::toSqlDeleteStringSpecific() const
+{
+    return "DELETE FROM `project_DV1456`.`contestant` WHERE `contestant_id`='";
+}
+
+//DELETE FROM `project_DV1456`.`contestant` WHERE `contestant_id`='30';

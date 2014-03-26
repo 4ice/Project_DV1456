@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->LE_phoneNr_S->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
     ui->LE_Distance->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
     ui->LE_timeResult->setValidator(new QDoubleValidator(0, 9999999999, 0, this) );
+    ui->BnAddResult->setEnabled(false);
 
     //setup the combobox.
     ui->CB_gender->addItem("Male");
@@ -64,19 +65,22 @@ void MainWindow::startDialog()
     //Call startup window who ask if I want to go to an old competition, or start a new one
     DialogProgramStart *dialog = nullptr;
 
-    if(this->currentContest == nullptr)
+    if(this->currentContest == nullptr) //If there is no contest atm
     {
         dialog = new DialogProgramStart();
     }
-    else
+    else    //If we have an active contest
     {
         dialog = new DialogProgramStart(this->currentContest->getContestName(), this->currentContest->getContestId());
     }
     dialog->exec();
 
-    if(dialog->getContestName() != "")    //If this is true, then there was a new contest created...
+    ui->LW_people->clear();
+
+    if(dialog->getContestName() != "" && dialog->getIdOfContest() == -1)    //If this is true, then there was a new contest created,
+                                                                            //or we pressed cancel when we already had an active contest
     {
-        if(this->currentContest != nullptr) //if true, there was another contest created earlier
+        if(this->currentContest != nullptr)
         {
             delete this->currentContest;
         }
@@ -87,15 +91,27 @@ void MainWindow::startDialog()
         ui->BnAddStaff->setEnabled(true);
         ui->BnAddTrack->setEnabled(true);
         ui->BnAddResult->setEnabled(true);
+        ui->CB_track->clear();
+
+        if(this->currentContest->getNrOfTracks() == 0)
+        {   //we wont be able to try to add a competitor if there is no tracks to connect him to.
+            ui->BnAddCompetitor->setEnabled(false);
+        }
+        else
+        {
+            for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+            {
+                ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+            }
+        }
     }
-    else if(dialog->getDatabaseContestName() != "") //If this is true, then we just loaded a contest
+    else if(dialog->getContestName() != "" && dialog->getIdOfContest() != -1) //If this is true, then we just loaded a contest
     {
-        if(this->currentContest != nullptr) //if true, there was another contest created earlier
+        if(this->currentContest != nullptr)
         {
             delete this->currentContest;
         }
-
-        loadDatabaseToContestHandler(dialog->getDatabaseContestName(), to_string(dialog->getIdOfContest()));
+        loadDatabaseToContestHandler(dialog->getContestName(), to_string(dialog->getIdOfContest()));
 
         ui->LActiveContest->setText("Active contest: " + QString::fromStdString(this->currentContest->getContestName().c_str()));
         ui->LActiveContest_S->setText("Active contest: " + QString::fromStdString(this->currentContest->getContestName().c_str()));
@@ -104,9 +120,17 @@ void MainWindow::startDialog()
         ui->BnAddTrack->setEnabled(true);
         ui->BnAddResult->setEnabled(true);
         ui->CB_track->clear();
-        for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+
+        if(this->currentContest->getNrOfTracks() == 0)
+        {   //we wont be able to try to add a competitor if there is no tracks to connect him to.
+            ui->BnAddCompetitor->setEnabled(false);
+        }
+        else
         {
-            ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+            for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+            {
+                ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+            }
         }
     }
     else    //No contest currently loaded...
@@ -119,13 +143,6 @@ void MainWindow::startDialog()
         ui->BnAddResult->setEnabled(false);
     }
     delete dialog;
-
-    if(this->currentContest != nullptr)
-    {
-        this->theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
-
-
-    }
 }
 void MainWindow::saveToDb()
 {
@@ -205,12 +222,6 @@ void MainWindow::saveToDb()
                     stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "people")+to_string(this->currentContest->getContestId())+"');");
                 }
             }
-//            for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
-//            {
-//                //insert tracks into the database
-//                stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "track")+to_string(this->currentContest->getContestId())+"');");
-
-//            }
         }
         catch(sql::SQLException &e)
         {
@@ -244,7 +255,7 @@ void MainWindow::saveToDb()
                     stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "track"));
                     for(int j = 0; j < 2; j++)
                     {
-
+                        string test1 =this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j);
                         stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j));
                     }
                 }
@@ -261,10 +272,28 @@ void MainWindow::saveToDb()
                     res->next();
                     this->currentContest->setTrackDatabaseId(res->getInt("track_id"), i);
 
+                    string theGender = "";
                     for(int j = 0; j < 2; j++)
                     {
-                        string test = this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j)+to_string(this->currentContest->trackDatabaseId(i))+"');";
+                        if(j == 0)
+                        {
+                            theGender = "Male";
+                        }
+                        else
+                        {
+                            theGender = "Female";
+                        }
+
+                        //string test = this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j)+to_string(this->currentContest->trackDatabaseId(i))+"');";
                         stmt->execute(this->currentContest->toSqlSaveStringSpecific(i, "trackRecord", j)+to_string(this->currentContest->trackDatabaseId(i))+"');");
+
+
+                        //retrieve the databaseId of the newly inserted track record
+                        stmt->execute("SELECT track_record_id FROM project_DV1456.track_record WHERE track_track_id = "+to_string(this->currentContest->trackDatabaseId(i))+
+                                      " AND gender = \""+theGender+"\";");
+                        res.reset(stmt->getResultSet());
+                        res->next();
+                        this->currentContest->recordInserted(i, j, res->getInt("track_record_id"));
                     }
                 }
             }
@@ -294,29 +323,139 @@ void MainWindow::saveToDb()
 }
 void MainWindow::delPersonDialog()
 {
-    DialogDeletePerson *dialog = new DialogDeletePerson(*this->currentContest);
-
-    dialog->exec();
-
-    if(dialog->getSsn() != "")
+    if(this->currentContest != nullptr)
     {
-        this->currentContest->removePerson(dialog->getSsn());
+        DialogDeletePerson *dialog = new DialogDeletePerson(*this->currentContest);
+
+        dialog->exec();
+
+        if(dialog->getSsn() != "")
+        {
+            if(this->currentContest->peopleDatabaseId(this->currentContest->posOfSsn(dialog->getSsn())) != -1)
+            {
+                //remove from the database
+                string url = "localhost";
+                const string user = "root";
+                const string pass = "1";
+                const string database = "project_DV1456";
+
+                try
+                {
+                    sql::Driver* driver = get_driver_instance();
+                    std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+                    con->setSchema(database);
+                    std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+
+                    stmt->execute(this->currentContest->toSqlDeleteString(this->currentContest->posOfSsn(dialog->getSsn())) +
+                                  to_string(this->currentContest->peopleDatabaseId(this->currentContest->posOfSsn(dialog->getSsn()))) + "';");
+
+                }
+                catch(sql::SQLException &e)
+                {
+                    /*
+                    MySQL Connector/C++ throws three different exceptions:
+
+                    - sql::MethodNotImplementedException (derived from sql::SQLException)
+                    - sql::InvalidArgumentException (derived from sql::SQLException)
+                    - sql::SQLException (derived from std::runtime_error)
+                            */
+                    cout << "# ERR: SQLException in " << __FILE__;
+                    cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+                    /* what() (derived from std::runtime_error) fetches error message */
+                    cout << "# ERR: " << e.what();
+                    cout << " (MySQL error code: " << e.getErrorCode();
+                    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+                }
+            }
+
+            //remove from the contestHandler
+            this->currentContest->removePerson(dialog->getSsn());
+        }
+        delete dialog;
     }
-    delete dialog;
+    else
+    {
+        DialogError dialog("You can't delete anyting if there is no contest activated.");
+        dialog.exec();
+    }
 }
 void MainWindow::delTrackDialog()
 {
-    DialogDeleteTrack *dialog = new DialogDeleteTrack(*this->currentContest);
-
-    dialog->exec();
-
-    if(dialog->getTrackName() != "")
+    if(this->currentContest != nullptr)
     {
-        this->currentContest->removeTrack(dialog->getTrackName());
-    }
-    delete dialog;
-}
+        DialogDeleteTrack *dialog = new DialogDeleteTrack(*this->currentContest);
 
+        dialog->exec();
+
+        if(dialog->getTrackName() != "")
+        {
+            if (this->currentContest->trackDatabaseId((this->currentContest->posOfTrack(dialog->getTrackName()))) != -1)    //if this isn't -1, the track was already added to the database, and therefore we have to remove it from the database.
+            {
+                //remove from the database
+                string url = "localhost";
+                const string user = "root";
+                const string pass = "1";
+                const string database = "project_DV1456";
+
+                try
+                {
+                    sql::Driver* driver = get_driver_instance();
+                    std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+                    con->setSchema(database);
+                    std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+                    //Remove the records
+                    stmt->execute("DELETE FROM `project_DV1456`.`track_record` WHERE `track_track_id`='" +
+                                  to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
+
+
+                    //Remove the track
+                    stmt->execute("DELETE FROM `project_DV1456`.`track` WHERE `track_id`='" +
+                                  to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
+
+                }
+                catch(sql::SQLException &e)
+                {
+                    /*
+                    MySQL Connector/C++ throws three different exceptions:
+
+                    - sql::MethodNotImplementedException (derived from sql::SQLException)
+                    - sql::InvalidArgumentException (derived from sql::SQLException)
+                    - sql::SQLException (derived from std::runtime_error)
+                            */
+                    cout << "# ERR: SQLException in " << __FILE__;
+                    cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+                    /* what() (derived from std::runtime_error) fetches error message */
+                    cout << "# ERR: " << e.what();
+                    cout << " (MySQL error code: " << e.getErrorCode();
+                    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+                }
+            }
+
+            //remove from the contestHandler
+            this->currentContest->removeTrack(dialog->getTrackName());
+        }
+
+        delete dialog;
+    }
+    else
+    {
+        DialogError dialog("You can't delete anyting if there is no contest activated.");
+        dialog.exec();
+    }
+
+    ui->CB_track->clear();
+    for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+    {
+        ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
+    }
+    if(this->currentContest->getNrOfTracks() == 0)
+    {
+        ui->BnAddCompetitor->setEnabled(false);
+    }
+
+}
 void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string idOfContest)
 {
     //info about the database that we want to read from:
@@ -377,9 +516,27 @@ void MainWindow::loadDatabaseToContestHandler(string databaseContestName, string
             res.reset(stmt->getResultSet());
             while (res->next()) {
                 this->currentContest->addPerson(this->year, res->getString("name"), res->getString("mail"), res->getString("ssn"),
-                                                res->getString("gender"), res->getInt("startingNumber"), res->getInt("contestant_id"), res->getInt("timeResult"));
+                                                res->getString("gender"),res->getString("track"), res->getInt("startingNumber"), res->getInt("contestant_id"), res->getInt("timeResult"));
+
             }
         } while(stmt->getMoreResults());
+
+        int nrOfCompetitors = 0;
+
+        //clear out the old list of competitors
+        delete [] this->theCompetitors;
+
+        //create a new list with the right amount of places
+        theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
+
+        for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
+        {
+            theCompetitors[nrOfCompetitors] = this->currentContest->contestantInfo(i);
+            if(theCompetitors[nrOfCompetitors].getName() != "")
+            {
+                ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
+            }
+        }
 
         //Staff
         stmt->execute("SELECT * FROM project_DV1456.staff WHERE contests_contest_id=\""+ idOfContest +"\";");
@@ -448,7 +605,6 @@ string MainWindow::deletePerson(string ssn)
     this->currentContest->removePerson(ssn);
     return "ok";
 }
-
 void MainWindow::createMenus()
 {
     QAction *delPersonAct;
@@ -468,6 +624,11 @@ void MainWindow::createMenus()
     saveAct = new QAction("&Save to database", this);
     fileMenu->addAction(saveAct);
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveToDb()));
+
+    //File->make HTML
+    makeHtmlAct = new QAction("&Make HTML-file");
+    fileMenu->addAction(makeHtmlAct);
+
 
     //File->Exit
     exitAct = new QAction("&Exit", this);
@@ -493,13 +654,32 @@ void MainWindow::on_BnAddCompetitor_clicked()
         //Add competitor
         this->currentContest->addPerson(this->year, ui->LE_name->text().toStdString(), ui->LE_mail->text().toStdString(),
                                         ui->LE_SSN->text().toStdString(), ui->CB_gender->currentText().toStdString(),
-                                        ui->LE_startingNr->text().toInt(), -1);
+                                        ui->CB_track->currentText().toStdString(), ui->LE_startingNr->text().toInt(), -1);
 
         //Clear the input fields
         ui->LE_name->clear();
         ui->LE_mail->clear();
         ui->LE_SSN->clear();
         ui->LE_startingNr->clear();
+        ui->LW_people->clear();
+
+
+        int nrOfCompetitors = 0;
+
+        //clear out the old list of competitors
+        delete [] this->theCompetitors;
+
+        //create a new list with the right amount of places
+        theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
+
+        for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
+        {
+            theCompetitors[nrOfCompetitors] = this->currentContest->contestantInfo(i);
+            if(theCompetitors[nrOfCompetitors].getName() != "")
+            {
+                ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
+            }
+        }
     }
     else
     {
@@ -528,50 +708,55 @@ void MainWindow::on_BnAddStaff_clicked()
         dialog.exec();
     }
 }
-void MainWindow::on_pushButton_2_clicked()
-{
-    ui->textBrowser->setText(QString::fromStdString(this->currentContest->toString("tracks")));
-}
-
-void MainWindow::on_BnShowPeople_clicked()
-{
-    ui->LW_people->clear();
-    int nrOfCompetitors = 0;
-    delete [] this->theCompetitors;
-    theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
-    for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
-    {
-        theCompetitors[nrOfCompetitors] = this->currentContest->contestantInfo(i);
-        if(theCompetitors[nrOfCompetitors].getName() != "")
-        {
-            ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
-        }
-    }
-}
 void MainWindow::on_BnAddResult_clicked()
 {
-    //Add the result to the proper person
-    this->currentContest->addResult(this->theCompetitors[ui->LW_people->currentRow()].getSsn(), ui->LE_timeResult->text().toDouble(), ui->LW_Tracks->currentRow());
-    ui->LE_timeResult->clear();
-
-
-    //Also check if this is a track-record
-
+    if(ui->LW_people->currentRow() != -1)
+    {
+        //Add the result to the proper person
+        if(ui->LE_timeResult->text() != "")
+        {
+            this->currentContest->addResult(this->theCompetitors[ui->LW_people->currentRow()].getSsn(), ui->LE_timeResult->text().toDouble(), this->currentContest->posOfTrack(ui->LRecordTrackName->text().toStdString()));
+            ui->LE_timeResult->clear();
+        }
+        else
+        {
+            DialogError dialog("Please enter a result before pressing add..");
+            dialog.exec();
+        }
+    }
+    else
+    {
+        DialogError dialog("Please select the person that you want to add the result for..");
+        dialog.exec();
+    }
 }
-void MainWindow::on_pushButton_3_clicked()
-{
-    ui->LB_People_info->setText(QString::fromStdString(this->currentContest->toString()));
-}
-
 void MainWindow::on_LW_people_itemClicked()
 {
-    ui->LW_Tracks->clear();
-    ui->LW_Tracks->addItem(QString::fromStdString(this->currentContest->fetchTrackName(0)));
+    ui->BnAddResult->setEnabled(true);
+    ui->LRecordTrackName->setText(QString::fromStdString(this->currentContest->competitorsTrack(this->theCompetitors[ui->LW_people->currentRow()].getSsn())));
 }
-
 void MainWindow::on_BnAddTrack_clicked()
 {
-    if(ui->LE_TrackName->text() != "" && ui->LE_Distance->text() != "" && ui->LE_Location->text() != "" && ui->PTE_Description->toPlainText().toStdString() != "")
+    bool trackNameUsed = false;
+
+    for(int i = 0; i < this->currentContest->getNrOfTracks(); i++)
+    {
+        if(ui->LE_TrackName->text().toStdString() == this->currentContest->trackName(i))
+        {
+            trackNameUsed = true;
+        }
+    }
+    if(trackNameUsed)
+    {
+        DialogError dialog("An track with that name already exists.");
+        dialog.exec();
+    }
+    else if(ui->LE_TrackName->text() == "" || ui->LE_Distance->text() == "" || ui->LE_Location->text() == "" || ui->PTE_Description->toPlainText().toStdString() == "")
+    {
+        DialogError dialog("Input missing in one/several of the fields.");
+        dialog.exec();
+    }
+    else
     {
         //Add
         this->currentContest->addTrack(ui->LE_TrackName->text().toStdString(), stoi(ui->LE_Distance->text().toStdString()), ui->LE_Location->text().toStdString(), ui->PTE_Description->toPlainText().toStdString(), -1);
@@ -587,10 +772,6 @@ void MainWindow::on_BnAddTrack_clicked()
         {
             ui->CB_track->addItem(QString::fromStdString(this->currentContest->trackName(i)));
         }
-    }
-    else
-    {
-        DialogError dialog("Input missing in one/several of the fields.");
-        dialog.exec();
+        ui->BnAddCompetitor->setEnabled(true);
     }
 }

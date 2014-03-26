@@ -23,8 +23,9 @@ public:
     void setRecordHolder(string recordHolder);
     void setTime(double time);
     void setDate(string date);
+    void setDatabaseId(int databaseId);
     string toString() const;
-    string toSqlSaveString() const;
+    string toSqlSaveString(int gender) const;
 };
 
 #endif // TRACKRECORD_H

@@ -18,5 +18,6 @@ public:
     string toStringSpecific() const;
     Staff *clone() const;
     string toSqlSaveStringSpecific() const;
+    string toSqlDeleteStringSpecific() const;
 };
 #endif

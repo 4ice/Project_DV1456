@@ -5,6 +5,7 @@
 #include <QListWidgetItem>
 #include <string>
 #include "ContestHandler.h"
+#include "DialogError.h"
 
 namespace Ui {
 class DialogDeleteTrack;
@@ -31,7 +32,6 @@ private:
 
     string trackName;
     ContestHandler &loadedContest;
-
 };
 
 #endif // DIALOGDELETETRACK_H
