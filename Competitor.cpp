@@ -16,7 +16,7 @@ Competitor::Competitor(int databaseId, int currentYear, string name, string mail
     this->gender = gender;
     this->startingNumber = startingNumber;
     this->track = track;
-    this->raceClass = calculateRaceClass(this->age(std::stoi(this->getSsn().substr(0,4)), currentYear));
+    this->raceClass = calculateRaceClass(this->age(std::stoi(this->getSsn().substr(0,2)), currentYear));
     this->timeResult = timeResult;
 }
 Competitor::~Competitor()
@@ -64,24 +64,40 @@ void Competitor::setTrack(string track)
 }
 int Competitor::age(int birthYear, int currentYear) const
 {
+    //if this is true, the person is born year 2000 or later
+    if(birthYear < currentYear-2000)
+    {
+        birthYear += 2000;
+    }
+    else
+    {
+        birthYear += 1900;
+    }
     return currentYear-birthYear;
 }
 string Competitor::calculateRaceClass(int age)
 {
     int theClassNumber = 0;
     string className = "";
-    if(this->gender == "male" && age <= 16)      //Boys
+    if(this->gender == "Male" && age <= 16)      //Pojkar
     {
        className = "P";
     }
-    else if(this->gender == "female" && age <= 16)   //Girl
+    else if(this->gender == "Female" && age <= 16)   //Flickor
     {
         className = "F";
     }
+    if(this->gender == "Male" && age > 16)      //Herrar
+    {
+        className = "H";
+    }
+    else if(this->gender == "Female" && age > 16)   //Damer
+    {
+        className = "D";
+    }
     theClassNumber = (age/2) * 2;
-    className+=theClassNumber;
-    //return className;
-    return "P20";
+    className+=to_string(theClassNumber);
+    return className;
 }
 
 string Competitor::toStringSpecific() const
@@ -130,5 +146,3 @@ string Competitor::toSqlDeleteStringSpecific() const
 {
     return "DELETE FROM `project_DV1456`.`contestant` WHERE `contestant_id`='";
 }
-
-//DELETE FROM `project_DV1456`.`contestant` WHERE `contestant_id`='30';

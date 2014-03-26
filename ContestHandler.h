@@ -39,8 +39,10 @@ public:
     void setContestYear(int contestYear);
     void addPerson(int currentYear, string name, string mail, string ssn, string gender, string track, int startingNumber, int databaseId, int timeResult = -1);    //Competitor
     void addPerson(string name, string mail, string ssn, string task, string phoneNr, int databaseId);    //Staff
-    bool removePerson(string ssn);  //number is specific for a person
+    bool removePerson(string ssn);  //number is unique for a person
     string trackName(int index) const;
+    int trackDistance(int index) const;
+    bool checkIfOkToRemoveTrack(string trackName);
     PersonNameSsn contestantInfo(int index) const;
     PersonNameSsn staffInfo(int index) const;
     void addTrack(string trackName, int distance, string location, string description, int databaseId);

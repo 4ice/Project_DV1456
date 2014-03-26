@@ -21,7 +21,6 @@ public:
 
 private slots:
     void loadPeople();
-    //void loadStaff();
 
     void on_BnDelComp_clicked();
 

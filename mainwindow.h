@@ -20,13 +20,13 @@ public:
     int getYear() const;
     void loadDatabaseToContestHandler(string databaseContestName, string idOfContest);
     string deletePerson(string ssn);
-    void makeHtml();
 
 private slots:
     void startDialog();
     void saveToDb();
     void delPersonDialog();
     void delTrackDialog();
+    void makeHtml();
 
     void on_BnAddCompetitor_clicked();
 

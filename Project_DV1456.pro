@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     DialogNewContest.cpp \
     DialogDeleteTrack.cpp \
     DialogError.cpp \
-    ContestNameYear.cpp
+    ContestNameYear.cpp \
+    DialogMakeHtml.cpp
 
 HEADERS  += mainwindow.h \
     People.h \
@@ -45,13 +46,15 @@ HEADERS  += mainwindow.h \
     DialogNewContest.h \
     DialogDeleteTrack.h \
     DialogError.h \
-    ContestNameYear.h
+    ContestNameYear.h \
+    DialogMakeHtml.h
 
 FORMS    += mainwindow.ui \
     DialogDeletePerson.ui \
     DialogProgramStart.ui \
     DialogNewContest.ui \
-    DialogDeleteTrack.ui
+    DialogDeleteTrack.ui \
+    DialogMakeHtml.ui
 
 RESOURCES +=
 

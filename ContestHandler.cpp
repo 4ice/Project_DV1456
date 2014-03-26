@@ -22,7 +22,6 @@ ContestHandler::ContestHandler(string contestName, int contestYear, int contestI
     {
         this->theTracks[i] = nullptr;
     }
-    //Track**
 }
 void ContestHandler::freeMemory()
 {
@@ -175,6 +174,26 @@ bool ContestHandler::removePerson(string ssn)
 string ContestHandler::trackName(int index) const
 {
     return this->theTracks[index]->getTrackName();
+}
+int ContestHandler::trackDistance(int index) const
+{
+    return this->theTracks[index]->getDistance();
+}
+bool ContestHandler::checkIfOkToRemoveTrack(string trackName)
+{
+    bool okToRemove = true;
+    for(int i = 0; i < this->nrOfPpl && okToRemove == true; i++)
+    {
+        Competitor *aCompetitor = dynamic_cast<Competitor *>(this->thePeople[i]);
+        if(aCompetitor != nullptr)
+        {
+            if(aCompetitor->getTrack() == trackName)
+            {
+                okToRemove = false;
+            }
+        }
+    }
+    return okToRemove;
 }
 PersonNameSsn ContestHandler::contestantInfo(int index) const
 {

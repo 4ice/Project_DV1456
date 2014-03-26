@@ -6,9 +6,13 @@
 #include "DialogDeletePerson.h"
 #include "DialogDeleteTrack.h"
 #include "DialogError.h"
+#include "DialogMakeHtml.h"
 
 //To get the current year
 #include <ctime>
+
+//To be able to output a file
+#include <fstream>
 
 
 //For the mySql connection
@@ -379,6 +383,25 @@ void MainWindow::delPersonDialog()
         DialogError dialog("You can't delete anyting if there is no contest activated.");
         dialog.exec();
     }
+
+    ui->LW_people->clear();
+
+    int nrOfCompetitors = 0;
+
+    //clear out the old list of competitors
+    delete [] this->theCompetitors;
+
+    //create a new list with the right amount of places
+    theCompetitors = new PersonNameSsn[this->currentContest->getNrOfPpl()];
+
+    for(int i = 0; i < this->currentContest->getNrOfPpl(); i++)
+    {
+        theCompetitors[nrOfCompetitors] = this->currentContest->contestantInfo(i);
+        if(theCompetitors[nrOfCompetitors].getName() != "")
+        {
+            ui->LW_people->addItem(QString::fromStdString(theCompetitors[nrOfCompetitors++].getName()));
+        }
+    }
 }
 void MainWindow::delTrackDialog()
 {
@@ -390,53 +413,61 @@ void MainWindow::delTrackDialog()
 
         if(dialog->getTrackName() != "")
         {
-            if (this->currentContest->trackDatabaseId((this->currentContest->posOfTrack(dialog->getTrackName()))) != -1)    //if this isn't -1, the track was already added to the database, and therefore we have to remove it from the database.
+            //Check if a contestant is bound to that track, if there is, we wont delete...
+            if(this->currentContest->checkIfOkToRemoveTrack(dialog->getTrackName()))
             {
-                //remove from the database
-                string url = "localhost";
-                const string user = "root";
-                const string pass = "1";
-                const string database = "project_DV1456";
-
-                try
+                if (this->currentContest->trackDatabaseId((this->currentContest->posOfTrack(dialog->getTrackName()))) != -1)    //if this isn't -1, the track was already added to the database, and therefore we have to remove it from the database.
                 {
-                    sql::Driver* driver = get_driver_instance();
-                    std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
-                    con->setSchema(database);
-                    std::unique_ptr<sql::Statement> stmt(con->createStatement());
+                    //remove from the database
+                    string url = "localhost";
+                    const string user = "root";
+                    const string pass = "1";
+                    const string database = "project_DV1456";
 
-                    //Remove the records
-                    stmt->execute("DELETE FROM `project_DV1456`.`track_record` WHERE `track_track_id`='" +
-                                  to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
+                    try
+                    {
+                        sql::Driver* driver = get_driver_instance();
+                        std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+                        con->setSchema(database);
+                        std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+                        //Remove the records
+                        stmt->execute("DELETE FROM `project_DV1456`.`track_record` WHERE `track_track_id`='" +
+                                      to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
 
 
-                    //Remove the track
-                    stmt->execute("DELETE FROM `project_DV1456`.`track` WHERE `track_id`='" +
-                                  to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
+                        //Remove the track
+                        stmt->execute("DELETE FROM `project_DV1456`.`track` WHERE `track_id`='" +
+                                      to_string(this->currentContest->trackDatabaseId(this->currentContest->posOfTrack(dialog->getTrackName()))) + "';");
 
+                    }
+                    catch(sql::SQLException &e)
+                    {
+                        /*
+                        MySQL Connector/C++ throws three different exceptions:
+
+                        - sql::MethodNotImplementedException (derived from sql::SQLException)
+                        - sql::InvalidArgumentException (derived from sql::SQLException)
+                        - sql::SQLException (derived from std::runtime_error)
+                                */
+                        cout << "# ERR: SQLException in " << __FILE__;
+                        cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+                        /* what() (derived from std::runtime_error) fetches error message */
+                        cout << "# ERR: " << e.what();
+                        cout << " (MySQL error code: " << e.getErrorCode();
+                        cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+                    }
                 }
-                catch(sql::SQLException &e)
-                {
-                    /*
-                    MySQL Connector/C++ throws three different exceptions:
 
-                    - sql::MethodNotImplementedException (derived from sql::SQLException)
-                    - sql::InvalidArgumentException (derived from sql::SQLException)
-                    - sql::SQLException (derived from std::runtime_error)
-                            */
-                    cout << "# ERR: SQLException in " << __FILE__;
-                    cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
-                    /* what() (derived from std::runtime_error) fetches error message */
-                    cout << "# ERR: " << e.what();
-                    cout << " (MySQL error code: " << e.getErrorCode();
-                    cout << ", SQLState: " << e.getSQLState() << " )" << endl;
-                }
+                //remove from the contestHandler
+                this->currentContest->removeTrack(dialog->getTrackName());
             }
-
-            //remove from the contestHandler
-            this->currentContest->removeTrack(dialog->getTrackName());
+            else
+            {
+                DialogError dialog("There are contestants bound to that track, you have to remove those first.");
+                dialog.exec();
+            }
         }
-
         delete dialog;
     }
     else
@@ -605,6 +636,129 @@ string MainWindow::deletePerson(string ssn)
     this->currentContest->removePerson(ssn);
     return "ok";
 }
+void MainWindow::makeHtml()
+{
+    DialogMakeHtml dialog;
+    dialog.exec();
+
+    //We read the result from the database
+
+
+    //If we pressed cancel at the dialog, we won't create a result-file
+    if(dialog.getNameOfContest() != "")
+    {
+        ofstream outFile;
+        outFile.open("Result.html");
+
+        //Generate some standard stuffs...
+        outFile << "<!DOCTYPE html><html><head><meta charset=\"utf-8\" /><title>Tävlingsnamn</title><style type=\"text/css\">html, body {font-family:Arial,sans-serif;margin:0;padding:0;}body {padding:10px 40px;}table {width:100%;margin-bottom:20px;}tr.header {background:#ddd;font-weight:bold;border-bottom:none;}td {padding:7px;border-top:none;border-left:1px black solid;border-bottom:1px black solid;border-right:none;}tr.pass td {color:#003b07;background:#86e191;}tr.skip td {color:#7d3a00;background:#ffd24a;}tr.fail td {color:#5e0e00;background:#ff9c8a;}tr:first-child td {border-top:1px black solid;}td:last-child {border-right:1px black solid;}tr.overview {font-weight:bold;color:#777;}tr.overview td {padding-bottom:0px;border-bottom:none;}tr.system-out td {color:#777;}hr {height:2px;margin:30px 0;background:#000;border:none;}</style></head>";
+
+
+        //info about the database that we want to read from:
+        string url = "localhost";
+        const string user = "root";
+        const string pass = "1";
+        const string database = "project_DV1456";
+        //Get contestname and year of the contest
+        try
+        {
+            sql::Driver* driver = get_driver_instance();
+            std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+            con->setSchema(database);
+            std::unique_ptr<sql::Statement> stmt(con->createStatement());
+
+            stmt->execute("SELECT * FROM project_DV1456.contests WHERE contest_id = " +to_string(dialog.getIdOfContest())+";");
+            std::unique_ptr< sql::ResultSet > res;
+
+            res.reset(stmt->getResultSet());
+            res->next();
+
+            outFile << "<body><h1>" << res->getString("contest_name") << " " << to_string(res->getInt("year_of_contest")) << "</h1>";
+        }
+        catch(sql::SQLException &e)
+        {
+            /*
+                  MySQL Connector/C++ throws three different exceptions:
+
+                  - sql::MethodNotImplementedException (derived from sql::SQLException)
+                  - sql::InvalidArgumentException (derived from sql::SQLException)
+                  - sql::SQLException (derived from std::runtime_error)
+            */
+            cout << "# ERR: SQLException in " << __FILE__;
+            cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+            /* what() (derived from std::runtime_error) fetches error message */
+            cout << "# ERR: " << e.what();
+            cout << " (MySQL error code: " << e.getErrorCode();
+            cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        }
+
+
+
+        try
+        {
+            sql::Driver* driver = get_driver_instance();
+            std::unique_ptr<sql::Connection> con(driver->connect(url, user, pass));
+            con->setSchema(database);
+            std::unique_ptr<sql::Statement> stmt(con->createStatement());
+            std::unique_ptr<sql::Statement> stmt2(con->createStatement());
+
+            stmt->execute("SELECT * FROM project_DV1456.track WHERE contests_contest_id = " +to_string(dialog.getIdOfContest())+";");
+            std::unique_ptr< sql::ResultSet > res;
+            std::unique_ptr< sql::ResultSet > res2;
+
+            do  {
+                res.reset(stmt->getResultSet());
+                //as long as there are more tracks to read, do this:
+                while (res->next()) {
+                    //Cteate the table with trackname
+                    outFile << "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"><tr class=\"overview\"><td colspan=\"5\">Track Name: "
+                               << res->getString("track_name") << "</td>";
+
+                    //Get the distance of the track
+                    outFile << "</tr><tr class=\"overview\"><td colspan=\"5\">Distance (km): " << to_string(res->getInt("distance")) << "</td>";
+
+                    //Create the rows in the table
+                    outFile << "<tr class=\"header\"><td>Pos</td><td>Name</td><td>Race class</td><td>Starting number</td><td>Time result</td></tr>";
+
+                    //read in the persons name, result and such...
+                    stmt->execute("SELECT * FROM project_DV1456.contestant WHERE contests_contest_id = "+to_string(dialog.getIdOfContest())+" AND track = '"+res->getString("track_name")+"' ORDER BY gender DESC, timeResult;");
+                    int counter = 1;
+                    do  {
+                        res2.reset(stmt2->getResultSet());
+                        //as long as there are more tracks to read, do this:
+                        while (res2->next()) {
+                            //we wont print the ones without result to our resultfile.
+                            if(res2->getInt("timeResult") != -1)
+                            {
+                                outFile << "<tr class=\"contestant nr. i\"><td>"+to_string(counter)+"</td><td>"+res2->getString("name")+"</td><td>"+res2->getString("raceClass")+"</td><td>"+to_string(res2->getInt("startingNumber"))+"</td><td>"+to_string(res2->getInt("timeResult"))+"</td>";
+                                counter++;
+                            }
+                        }
+                    } while(stmt2->getMoreResults());
+                }
+            } while(stmt->getMoreResults());
+        }
+        catch(sql::SQLException &e)
+        {
+            /*
+                  MySQL Connector/C++ throws three different exceptions:
+
+                  - sql::MethodNotImplementedException (derived from sql::SQLException)
+                  - sql::InvalidArgumentException (derived from sql::SQLException)
+                  - sql::SQLException (derived from std::runtime_error)
+            */
+            cout << "# ERR: SQLException in " << __FILE__;
+            cout << "(" << __FUNCTION__ << ") on line " << __LINE__ << endl;
+            /* what() (derived from std::runtime_error) fetches error message */
+            cout << "# ERR: " << e.what();
+            cout << " (MySQL error code: " << e.getErrorCode();
+            cout << ", SQLState: " << e.getSQLState() << " )" << endl;
+        }
+        outFile << "</table></body></html>";
+        outFile.close();
+    }
+}
+
 void MainWindow::createMenus()
 {
     QAction *delPersonAct;
@@ -626,8 +780,9 @@ void MainWindow::createMenus()
     connect(saveAct, SIGNAL(triggered()), this, SLOT(saveToDb()));
 
     //File->make HTML
-    makeHtmlAct = new QAction("&Make HTML-file");
+    makeHtmlAct = new QAction("&Make HTML-file", this);
     fileMenu->addAction(makeHtmlAct);
+    connect(makeHtmlAct, SIGNAL(triggered()), this, SLOT(makeHtml()));
 
 
     //File->Exit

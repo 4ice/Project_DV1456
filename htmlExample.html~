@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Tävlingsnamn</title>
+		<style type="text/css">
+			html, body {
+				font-family:Arial,sans-serif;
+				margin:0;
+				padding:0;
+			}
+			
+			body {
+				padding:10px 40px;
+			}
+			
+			table {
+				width:100%;
+				margin-bottom:20px;
+			}
+			
+			tr.header {
+				background:#ddd;
+				font-weight:bold;
+				border-bottom:none;
+			}
+
+			td {
+				padding:7px;
+				border-top:none;
+				border-left:1px black solid;
+				border-bottom:1px black solid;
+				border-right:none;
+			}
+			
+			tr.pass td {
+				color:#003b07;
+				background:#86e191;
+			}
+			
+			tr.skip td {
+				color:#7d3a00;
+				background:#ffd24a;
+			}
+			
+			tr.fail td {
+				color:#5e0e00;
+				background:#ff9c8a;
+			}
+			
+			tr:first-child td {
+				border-top:1px black solid;
+			}
+			
+			td:last-child {
+				border-right:1px black solid;
+			}
+			
+			tr.overview {
+				font-weight:bold;
+				color:#777;
+			}
+			
+			tr.overview td {
+				padding-bottom:0px;
+				border-bottom:none;
+			}
+			
+			tr.system-out td {
+				color:#777;
+			}
+			
+			hr {
+				height:2px;
+				margin:30px 0;
+				background:#000;
+				border:none;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>Tävlingsnamn + year</h1>
+		<table border="0" cellpadding="0" cellspacing="0">
+			<tr class="overview">
+				<td colspan="5">Track Name: + this->currentContest-></td>
+			</tr>
+			<tr class="overview">
+				<td colspan="5">Distance: + this->currentContest->getYearOfContest()</td>
+			</tr>
+			<tr class="header">
+				<td>Pos</td>
+				<td>Name</td>
+				<td>Race class</td>
+				<td>Starting number</td>
+				<td>Time result</td>
+			</tr>
+			<tr class="contestant nr. i">
+				<td>1</td>
+				<td>"contestant name"</td>
+				<td>"contestant class</td>
+				<td>"contestant starting number</td>				
+				<td>"contestant time result</td>
+			</tr>
+		</table>
+		<hr />
+	</body>
+</html>

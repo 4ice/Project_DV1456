@@ -57,7 +57,6 @@ void DialogProgramStart::loadDatabase()
     const string user = "root";
     const string pass = "1";
     const string database = "project_DV1456";
-    int nrOfContests = 0;
 
     try
     {
@@ -73,9 +72,13 @@ void DialogProgramStart::loadDatabase()
             res.reset(stmt->getResultSet());
             while (res->next())
             {
-                this->theContests[nrOfContests] = new ContestNameYear(res->getString("contest_name"), res->getInt("year_of_contest"));
-                ui->LW_openList->addItem(QString::fromStdString(this->theContests[nrOfContests]->getContestName()));
-                nrOfContests++;
+                if(this->capContestNameYear == this->nrOfContestNameYear)
+                {
+                    this->expandContestNameYearArray();
+                }
+                this->theContests[this->nrOfContestNameYear] = new ContestNameYear(res->getString("contest_name"), res->getInt("year_of_contest"));
+                ui->LW_openList->addItem(QString::fromStdString(this->theContests[nrOfContestNameYear]->getContestName()));
+                this->nrOfContestNameYear++;
             }
         } while(stmt->getMoreResults());
     }

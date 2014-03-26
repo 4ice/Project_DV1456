@@ -4,8 +4,7 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <string>
-#include "ContestHandler.h"
-#include "ContestNameYear.h"
+#include "ContestHandler.h"     //Can we remove this?
 #include "ContestNameYear.h"
 
 using namespace std;
